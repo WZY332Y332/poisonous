@@ -242,7 +242,7 @@ namespace Bili.SignIn.Uwp
 
             _settingsToolkit.DeleteLocalSetting(SettingNames.BiliUserId);
             _settingsToolkit.DeleteLocalSetting(SettingNames.AuthorizeResult);
-            _settingsToolkit.DeleteLocalSetting(CookieOnlyMidKey);
+            Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove(CookieOnlyMidKey);
             _cookieOnlyMode = false;
 
             if (_tokenInfo != null)
