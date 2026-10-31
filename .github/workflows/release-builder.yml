@@ -18,7 +18,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -26,7 +26,6 @@ jobs:
     env:
       Solution_Path: .\Bili.Uwp.sln
       UWP_Project_Directory: src\App
-      SigningCertificate: App_TemporaryKey.pfx
       BUILD_VERSION: ${{ github.event.inputs.version || '2.2310.1.1' }}
 
     steps:
@@ -46,12 +45,14 @@ jobs:
           Write-Host "manifest version = $env:BUILD_VERSION"
 
       - name: Build x64
+        # 关闭构建期签名：仓库自带的 App_TemporaryKey.pfx 已于 2024-09-23 过期，
+        # msbuild 走到 SignTool 会失败；产物我们会在本地用 wzy332.pfx 重新签名。
         run: >
           msbuild $env:Solution_Path
           /p:Platform=x64
           /p:AppxBundlePlatforms="x64"
           /p:AppxPackageDir=C:\Package\x64
-          /p:PackageCertificateKeyFile=$env:SigningCertificate
+          /p:AppxPackageSigningEnabled=false
           /restore /v:minimal
         env:
           BuildMode: SideloadOnly
@@ -64,3 +65,12 @@ jobs:
           path: C:\Package\x64\**\*.msixbundle
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: build-${{ github.run_number }}
+          files: C:\Package\x64\**\*.msixbundle
+          draft: false
+          prerelease: true
