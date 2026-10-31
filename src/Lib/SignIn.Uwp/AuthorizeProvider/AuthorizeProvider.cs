@@ -36,6 +36,12 @@ namespace Bili.SignIn.Uwp
             RetrieveAuthorizeResult();
             _guid = Guid.NewGuid().ToString("N");
             _isXbox = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox";
+
+            // 仅 Cookie 模式：后台校验 Cookie 是否仍有效，失效则自动登出
+            if (_cookieOnlyMode)
+            {
+                _ = ValidateCookieOnStartupAsync();
+            }
         }
 
         /// <inheritdoc/>

@@ -605,6 +605,37 @@ namespace Bili.SignIn.Uwp
             return true;
         }
 
+        /// <summary>
+        /// 启动时静默校验仅 Cookie 模式的登录态。Cookie 过期时自动登出，
+        /// 避免出现「界面显示已登录、实际所有请求都失败」的困惑状态。
+        /// </summary>
+        private async Task ValidateCookieOnStartupAsync()
+        {
+            if (string.IsNullOrEmpty(_cookieString))
+            {
+                AppLogger.Warn("Auth", "启动校验跳过：没有缓存的 Cookie");
+                return;
+            }
+
+            try
+            {
+                var data = await ModernAuth.ModernAuthService.ValidateCookieAsync(_cookieString);
+                var code = data["code"]?.Value<int>() ?? -1;
+                var isLogin = data["data"]?["isLogin"]?.Value<bool>() ?? false;
+                AppLogger.Info("Auth", $"启动校验: code={code}, isLogin={isLogin}");
+                if (code != 0 || !isLogin)
+                {
+                    AppLogger.Warn("Auth", "Cookie 已失效，自动登出");
+                    await SignOutAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // 网络异常不应影响登录态
+                AppLogger.Warn("Auth", "启动校验失败（忽略）: " + ex.Message);
+            }
+        }
+
         private void SaveCookie(CookieInfo cookieInfo)
         {
             if (cookieInfo == null || cookieInfo.Cookies == null)

@@ -196,8 +196,10 @@ namespace Bili.Lib
 
             try
             {
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 response = await SendRequestAsync(request, cancellationToken);
-                AppLogger.Info("HTTP", $"{request.Method} {uri} => {(int)response.StatusCode} 带Cookie={hasCookie}");
+                stopwatch.Stop();
+                AppLogger.Info("HTTP", $"{request.Method} {uri} => {(int)response.StatusCode} 带Cookie={hasCookie} 耗时={stopwatch.ElapsedMilliseconds}ms");
             }
             catch (Exception ex)
             {
