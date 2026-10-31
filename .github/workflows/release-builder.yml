@@ -40,10 +40,17 @@ jobs:
       - name: Show available Windows SDKs
         shell: pwsh
         run: |
-          $p = "C:\Program Files (x86)\Windows Kits\10\Platforms\UAP"
-          if (Test-Path $p) { Get-ChildItem $p | Select-Object -ExpandProperty Name } else { Write-Host "UAP platform dir missing" }
-          $wm = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\UnionMetadata" -Filter Windows.winmd -Recurse -ErrorAction SilentlyContinue | Select-Object -First 5 -ExpandProperty FullName
-          if ($wm) { $wm } else { Write-Host "Windows.winmd not found" }
+          $out = @()
+          $out += "=== Windows Kits\10\Include (已安装 SDK) ==="
+          $out += Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\Include" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+          $out += "=== Platforms\UAP ==="
+          $out += Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\Platforms\UAP" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+          $out += "=== Windows.winmd ==="
+          $out += Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\UnionMetadata" -Filter Windows.winmd -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+          $out += "=== MSBuild 版本 ==="
+          $out += (msbuild -version 2>&1 | Select-Object -Last 1)
+          $out | ForEach-Object { Write-Host $_ }
+          $out | Set-Content -Path C:\sdk-info.txt -Encoding UTF8
 
       - name: Update manifest version
         shell: pwsh
@@ -63,6 +70,7 @@ jobs:
           /p:AppxBundlePlatforms="x64"
           /p:AppxPackageDir=C:\Package\x64
           /p:AppxPackageSigningEnabled=false
+          /p:TargetPlatformVersion=10.0.19041.0
           /restore /v:normal
           /flp:LogFile=C:\build.log;Verbosity=normal
         env:
@@ -75,7 +83,9 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}
           name: build-${{ github.run_number }}
-          files: C:\build.log
+          files: |
+            C:\build.log
+            C:\sdk-info.txt
           fail_on_unmatched_files: false
           draft: false
           prerelease: true
