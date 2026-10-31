@@ -22,7 +22,9 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    # 必须钉在 windows-2022：windows-latest 已是 VS 18 镜像，
+    # 其中不含 UWP 所需的 Windows.winmd / Windows SDK 22000，会报几百个 Windows.* 命名空间缺失。
+    runs-on: windows-2022
     env:
       Solution_Path: .\Bili.Uwp.sln
       UWP_Project_Directory: src\App
@@ -34,6 +36,14 @@ jobs:
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
+
+      - name: Show available Windows SDKs
+        shell: pwsh
+        run: |
+          $p = "C:\Program Files (x86)\Windows Kits\10\Platforms\UAP"
+          if (Test-Path $p) { Get-ChildItem $p | Select-Object -ExpandProperty Name } else { Write-Host "UAP platform dir missing" }
+          $wm = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\UnionMetadata" -Filter Windows.winmd -Recurse -ErrorAction SilentlyContinue | Select-Object -First 5 -ExpandProperty FullName
+          if ($wm) { $wm } else { Write-Host "Windows.winmd not found" }
 
       - name: Update manifest version
         shell: pwsh
