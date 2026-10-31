@@ -101,6 +101,9 @@ namespace Bili.SignIn.Uwp
                             failTip = $"{failTip}\n{_authorizeProvider.LastQRCodeError}";
                         }
 
+                        // 失败时清掉二维码图片并放宽提示宽度，否则错误文字会被半透明遮罩后的码点挡住
+                        QRCodeImage.Source = null;
+                        QRTipBlock.MaxWidth = 280;
                         ShowQRTip(failTip);
                         _authorizeProvider.StopQRLoginListener();
                         break;

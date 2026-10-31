@@ -81,7 +81,14 @@ namespace Bili.SignIn.Uwp
                 queryParameters = new Dictionary<string, string>();
             }
 
-            queryParameters.Add(ServiceConstants.Query.Build, ServiceConstants.BuildNumber);
+            // 登录相关请求不要带 build：ServiceConstants.BuildNumber 是 2021 年的 TV 端版本号（5520400），
+            // 服务端现在会以「版本过低，请升级至最新版」直接拒绝（二维码登录即卡在此处）。
+            // 实测不带 build 时 passport 登录接口可正常返回 code 0。
+            if (clientType != RequestClientType.Login)
+            {
+                queryParameters.Add(ServiceConstants.Query.Build, ServiceConstants.BuildNumber);
+            }
+
             GenerateAppKey(queryParameters, clientType);
 
             var token = string.Empty;
