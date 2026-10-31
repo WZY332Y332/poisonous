@@ -1,0 +1,34 @@
+﻿<local:SettingSectionControl
+    x:Class="Bili.App.Controls.ScreenshotSettingSection"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:icon="using:Richasy.FluentIcon.Uwp"
+    xmlns:labs="using:CommunityToolkit.Labs.WinUI"
+    xmlns:loc="using:Bili.App.Resources.Extension"
+    xmlns:local="using:Bili.App.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    mc:Ignorable="d">
+
+    <labs:SettingsExpander Description="{loc:Locale Name=ScreenshotSettingsDescription}" Header="{loc:Locale Name=ScreenshotSettings}">
+        <labs:SettingsExpander.HeaderIcon>
+            <icon:RegularFluentIcon Symbol="Screenshot20" />
+        </labs:SettingsExpander.HeaderIcon>
+        <labs:SettingsExpander.Items>
+            <labs:SettingsCard Header="{loc:Locale Name=ScreenshotFolder}">
+                <Button
+                    MinWidth="120"
+                    Click="OnOpenScreenshotFolderButtonClickAsync"
+                    Content="{loc:Locale Name=OpenFolder}" />
+            </labs:SettingsCard>
+            <labs:SettingsCard Header="{loc:Locale Name=CopyToClipboardAfterScreenshot}">
+                <ToggleSwitch IsOn="{x:Bind ViewModel.IsCopyScreenshot, Mode=TwoWay}" />
+            </labs:SettingsCard>
+            <labs:SettingsCard Header="{loc:Locale Name=OpenFileAfterScreenshot}">
+                <ToggleSwitch IsOn="{x:Bind ViewModel.IsOpenScreenshotFile, Mode=TwoWay}" />
+            </labs:SettingsCard>
+        </labs:SettingsExpander.Items>
+    </labs:SettingsExpander>
+</local:SettingSectionControl>

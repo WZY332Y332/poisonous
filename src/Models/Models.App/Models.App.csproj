@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Bili.Models.App</AssemblyName>
+    <RootNamespace>Bili.Models.App</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Models.BiliBili\Models.BiliBili.csproj" />
+    <ProjectReference Include="..\Models.Data\Models.Data.csproj" />
+    <ProjectReference Include="..\Models.Enums\Models.Enums.csproj" />
+  </ItemGroup>
+
+</Project>

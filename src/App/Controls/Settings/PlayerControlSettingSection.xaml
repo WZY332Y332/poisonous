@@ -1,0 +1,88 @@
+﻿<local:SettingSectionControl
+    x:Class="Bili.App.Controls.PlayerControlSettingSection"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:app="using:Bili.Models.Enums.App"
+    xmlns:converter="using:Bili.App.Resources.Converter"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:enums="using:Bili.Models.Enums"
+    xmlns:icons="using:Richasy.FluentIcon.Uwp"
+    xmlns:labs="using:CommunityToolkit.Labs.WinUI"
+    xmlns:loc="using:Bili.App.Resources.Extension"
+    xmlns:local="using:Bili.App.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:player="using:Bili.Models.Enums.Player"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    mc:Ignorable="d">
+
+    <local:SettingSectionControl.Resources>
+        <converter:PreferCodecConverter x:Key="PreferCodecConverter" />
+        <converter:DecodeTypeConverter x:Key="DecodeTypeConverter" />
+        <converter:PlayerTypeConverter x:Key="PlayerTypeConverter" />
+    </local:SettingSectionControl.Resources>
+
+    <labs:SettingsExpander Description="{loc:Locale Name=PlayerControlDescription}" Header="{loc:Locale Name=PlayerControl}">
+        <labs:SettingsExpander.HeaderIcon>
+            <icons:RegularFluentIcon Symbol="VideoPlayPause24" />
+        </labs:SettingsExpander.HeaderIcon>
+        <labs:SettingsExpander.Items>
+            <labs:SettingsCard Description="{loc:Locale Name=PlayerTypeDescription}" Header="{loc:Locale Name=PlayerType}">
+                <ComboBox
+                    MinWidth="120"
+                    ItemsSource="{x:Bind ViewModel.PlayerTypeCollection, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.PlayerType, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="player:PlayerType">
+                            <TextBlock Text="{x:Bind Converter={StaticResource PlayerTypeConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </labs:SettingsCard>
+            <labs:SettingsCard
+                Description="{loc:Locale Name=DecodeTypeDescription}"
+                Header="{loc:Locale Name=DecodeType}"
+                Visibility="{x:Bind ViewModel.IsFFmpegPlayer, Mode=OneWay}">
+                <ComboBox
+                    MinWidth="120"
+                    ItemsSource="{x:Bind ViewModel.DecodeTypeCollection, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.DecodeType, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="app:DecodeType">
+                            <TextBlock Text="{x:Bind Converter={StaticResource DecodeTypeConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </labs:SettingsCard>
+            <labs:SettingsCard Description="{loc:Locale Name=PreferCodecDescription}" Header="{loc:Locale Name=PreferCodec}">
+                <ComboBox
+                    MinWidth="120"
+                    ItemsSource="{x:Bind ViewModel.PreferCodecCollection, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.PreferCodec, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="enums:PreferCodec">
+                            <TextBlock Text="{x:Bind Converter={StaticResource PreferCodecConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </labs:SettingsCard>
+            <labs:SettingsCard Description="{loc:Locale Name=SingleFastForwardAndRewindSpanDescription}" Header="{loc:Locale Name=SingleFastForwardAndRewindSpan}">
+                <muxc:NumberBox
+                    MinWidth="120"
+                    LargeChange="50"
+                    Maximum="300"
+                    Minimum="0"
+                    SmallChange="10"
+                    SpinButtonPlacementMode="Compact"
+                    Value="{x:Bind ViewModel.SingleFastForwardAndRewindSpan, Mode=TwoWay}" />
+            </labs:SettingsCard>
+            <labs:SettingsCard Description="{loc:Locale Name=PlaybackRateEnhancementDescription}" Header="{loc:Locale Name=PlaybackRateEnhancement}">
+                <ToggleSwitch IsOn="{x:Bind ViewModel.PlaybackRateEnhancement, Mode=TwoWay}" />
+            </labs:SettingsCard>
+            <labs:SettingsCard Description="{loc:Locale Name=GlobalPlaybackRateDescription}" Header="{loc:Locale Name=GlobalPlaybackRate}">
+                <ToggleSwitch IsOn="{x:Bind ViewModel.GlobalPlaybackRate, Mode=TwoWay}" />
+            </labs:SettingsCard>
+        </labs:SettingsExpander.Items>
+    </labs:SettingsExpander>
+</local:SettingSectionControl>
