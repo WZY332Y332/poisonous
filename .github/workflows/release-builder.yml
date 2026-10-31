@@ -64,14 +64,24 @@ jobs:
       - name: Build x64
         # 关闭构建期签名：仓库自带的 App_TemporaryKey.pfx 已于 2024-09-23 过期，
         # msbuild 走到 SignTool 会失败；产物我们会在本地用 wzy332.pfx 重新签名。
-        run: >
-          msbuild $env:Solution_Path
-          /p:Platform=x64
-          /p:AppxBundlePlatforms="x64"
-          /p:AppxPackageDir=C:\Package\x64
-          /p:AppxPackageSigningEnabled=false
-          /restore /v:normal
-          /flp:LogFile=C:\build.log;Verbosity=normal
+        # 用参数数组而非行内字符串：Windows runner 默认 shell 是 pwsh，
+        # 参数里出现 ; 会被当成语句分隔符，导致 msbuild 成功但步骤返回非零。
+        shell: pwsh
+        run: |
+          $msbuildArgs = @(
+            $env:Solution_Path,
+            '/p:Platform=x64',
+            '/p:AppxBundlePlatforms=x64',
+            '/p:AppxPackageDir=C:\Package\x64',
+            '/p:AppxPackageSigningEnabled=false',
+            '/restore',
+            '/v:normal',
+            '/flp:LogFile=C:\build.log'
+          )
+          Write-Host "msbuild $($msbuildArgs -join ' ')"
+          msbuild @msbuildArgs
+          Write-Host "===== msbuild exit code: $LASTEXITCODE ====="
+          exit $LASTEXITCODE
         env:
           BuildMode: SideloadOnly
           Configuration: Release
