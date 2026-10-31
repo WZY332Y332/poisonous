@@ -22,7 +22,7 @@ namespace Bili.ViewModels.Uwp.Home
             {
                 GetItemViewModel(ToolboxItemType.AvBvConverter),
                 GetItemViewModel(ToolboxItemType.CoverDownloader),
-                GetItemViewModel(ToolboxItemType.CookieBackup),
+                GetItemViewModel(ToolboxItemType.DiagnosticLog),
             };
         }
 

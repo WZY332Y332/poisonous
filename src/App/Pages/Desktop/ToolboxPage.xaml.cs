@@ -1,12 +1,13 @@
 // Copyright (c) Richasy. All rights reserved.
 
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Bili.App.Controls;
-using Bili.DI.Container;
-using Bili.Lib.Interfaces;
 using Bili.ViewModels.Interfaces.Home;
 using Bili.ViewModels.Interfaces.Toolbox;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -41,33 +42,36 @@ namespace Bili.App.Pages.Desktop
                 case Models.Enums.ToolboxItemType.CoverDownloader:
                     new CoverDownloaderView().Show();
                     break;
-                case Models.Enums.ToolboxItemType.CookieBackup:
-                    await CopyCookieAsync();
+                case Models.Enums.ToolboxItemType.DiagnosticLog:
+                    await ShowDiagnosticLogAsync();
                     break;
                 default:
                     break;
             }
         }
 
-        private async Task CopyCookieAsync()
+        private async Task ShowDiagnosticLogAsync()
         {
-            var cookie = Locator.Instance.GetService<IAuthorizeProvider>().GetCookieString();
+            var path = Path.Combine(ApplicationData.Current.LocalFolder.Path, "BiliDiag");
+            var exist = Directory.Exists(path);
             var dialog = new ContentDialog
             {
-                Title = "登录 Cookie",
+                Title = "诊断日志",
                 CloseButtonText = "关闭",
             };
 
-            if (string.IsNullOrEmpty(cookie))
+            if (!exist)
             {
-                dialog.Content = "当前没有可备份的 Cookie，请先登录。";
+                dialog.Content = $"日志目录尚未创建：\n{path}\n\n启动应用并操作一次后即可生成。";
             }
             else
             {
                 var data = new DataPackage();
-                data.SetText(cookie);
+                data.SetText(path);
                 Clipboard.SetContent(data);
-                dialog.Content = $"已复制到剪贴板（{cookie.Length} 字符）。Cookie 等同于账号凭证，请妥善保管，不要外传。";
+
+                var files = Directory.GetFiles(path, "bili-*.log");
+                dialog.Content = $"已复制目录路径到剪贴板：\n{path}\n\n当前日志文件 {files.Length} 个，最近的：{Path.GetFileName(files.OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ?? "(无)")}";
             }
 
             await dialog.ShowAsync();

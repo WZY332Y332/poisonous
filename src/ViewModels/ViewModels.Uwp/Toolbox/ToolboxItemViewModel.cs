@@ -43,9 +43,9 @@ namespace Bili.ViewModels.Uwp.Toolbox
                     Title = _resourceToolkit.GetLocaleString(LanguageNames.CoverDownloader);
                     Description = _resourceToolkit.GetLocaleString(LanguageNames.CoverDownloaderDescription);
                     break;
-                case ToolboxItemType.CookieBackup:
-                    Title = "登录 Cookie 备份";
-                    Description = "把当前登录 Cookie 复制到剪贴板，便于备份或迁移到其他设备";
+                case ToolboxItemType.DiagnosticLog:
+                    Title = "诊断日志";
+                    Description = "显示并复制日志目录，排查问题时把日志文件发给开发者即可";
                     break;
                 default:
                     break;

@@ -18,8 +18,8 @@ namespace Bili.Models.Enums
         CoverDownloader,
 
         /// <summary>
-        /// 登录 Cookie 备份（复制到剪贴板）.
+        /// 诊断日志（显示并复制日志目录）.
         /// </summary>
-        CookieBackup,
+        DiagnosticLog,
     }
 }

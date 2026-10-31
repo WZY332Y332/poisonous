@@ -34,7 +34,7 @@ https://ghproxy.net/<release_asset_url>
 
 | 项 | 值 |
 |---|---|
-| 当前已装 | `Richasy.Bili 2.2310.2.0` |
+| 当前已装 | `Richasy.Bili 2.2310.2.5` |
 | 包家族 | `Richasy.Bili_30bc4ykfppemj` |
 | 日志目录 | `%LOCALAPPDATA%\Packages\Richasy.Bili_30bc4ykfppemj\LocalState\BiliDiag\bili-YYYYMMDD.log` |
 | 签名证书 | `D:\10101010\windows11\wzy332.pfx` |
@@ -139,16 +139,23 @@ POST /x/passport-login/oauth2/login → code -105「验证码错误」，要求�
 
 ## 七、待办（按优先级）
 
-1. **收藏夹导航项**（低风险、见效快）
-   - 现有页面：`src/App/Pages/Desktop/Overlay/FavoritePage.xaml`（目前在 Overlay 里，不在主导航）
-   - 需在主界面 `NavigationView` 菜单新增「收藏夹」并注册路由
-2. **核对现有交互接口**
-   - 代码里投币用 `_appBase + /x/v2/view/coin/add`（app 域），收藏用 `/x/v3/fav/resource/batch-deal`
-   - 需实测是否仍有效，失效则替换为第四节列出的 web 接口
-3. **WebView 登录**（解决极验，用户暂缓）
+1. ~~**收藏夹导航项**~~ ✅ 已完成（2.2310.2.4）
+   - 同时新增「稍后再看」「观看历史」入口
+   - 未登录时先引导登录，成功后再打开
+   - 复用既有浮层视图，未新增页面
+2. ~~**核对现有交互接口**~~ ✅ 已完成
+   - App 域 `like` / `coin/add` / `like/triple` 全部存活，且只校验 CSRF，无需替换
+   - 真正的问题是 POST 请求不带 Cookie，已修
+3. **工具箱扩充**（进行中）
+   - ✅ 新增「登录 Cookie 备份」（复制到剪贴板）
+   - 可继续加：诊断日志导出、封面包量下载
+4. **WebView 登录**（解决极验，用户暂缓）
    - 复用 `SessionWebView`，加载 `https://passport.bilibili.com/login`
    - 检测跳回 `bilibili.com` 后提取 Cookie → 调用已验证的保存逻辑
-4. **接入 `ModernAuthService`**（可选，替代现有认证内部实现，接口不变）
+5. **视频信息层重写**（未开始）
+   - 端点已实测：`x/web-interface/view?bvid=` 字段齐全
+   - 需映射到现有 `VideoDetail` 模型
+6. **接入 `ModernAuthService`**（可选，替代现有认证内部实现，接口不变）
 
 ## 八、构建 → 签名 → 安装 操作手册
 
@@ -170,10 +177,14 @@ Add-AppxPackage -Path <signed> -DependencyPath <Dependencies\x64\*.appx>
 
 | 坑 | 说明 |
 |---|---|
-| StyleCop 是**错误级** | 空行（SA1513/SA1515）、成员顺序（SA1202/SA1203）都会让构建失败 |
+| StyleCop 是**错误级** | 空行（SA1513/SA1515）、成员顺序（SA1202/SA1203）都会让构建失败。**public 成员必须全部排在 private 之前** |
+| 老式 csproj 需显式登记 | 新增 `.cs` 必须写进 `<Compile Include>`，否则根本不参与编译（曾潜伏两版才暴露为 `CS0103`）；新增 `.xaml` 需同时登记 `<Page>` 与 `<Compile>` |
 | `DeleteLocalSetting` 只收枚举 | 传字符串会 CS1503 |
 | `/flp:...;Verbosity=...` 的分号 | Windows runner 默认 pwsh，分号是语句分隔符 → 用参数数组 |
 | 构建日志/artifact 需登录 | 已改为发布到 Release（公开直链） |
 | Release CDN 被墙 | 用 `ghproxy.net`，并校验文件大小 |
 | 单文件改版本号要 3 处 | workflow 的 input default、BUILD_VERSION 回退值 |
 | 安装前必须关应用 | 否则 0x80073D02 |
+| 含中文的 `.ps1` 必须 UTF-8 **带 BOM** | 否则 PS 5.1 按 ANSI 解析，语法报错 |
+| `ship.ps1` 的 `$RunId` 要用 `[long]` | GitHub run id 超出 Int32 |
+| 抓 workflow 要筛名字 | `per_page=1` 常抓到 Release Drafter，需过滤 `Build UWP*` |
