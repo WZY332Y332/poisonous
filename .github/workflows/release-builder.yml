@@ -53,12 +53,25 @@ jobs:
           /p:AppxBundlePlatforms="x64"
           /p:AppxPackageDir=C:\Package\x64
           /p:AppxPackageSigningEnabled=false
-          /restore /v:minimal
+          /restore /v:normal
+          /flp:LogFile=C:\build.log;Verbosity=normal
         env:
           BuildMode: SideloadOnly
           Configuration: Release
 
+      - name: Publish build log
+        if: always()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: build-${{ github.run_number }}
+          files: C:\build.log
+          fail_on_unmatched_files: false
+          draft: false
+          prerelease: true
+
       - name: Upload msixbundle
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: msixbundle-x64
@@ -66,11 +79,13 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Publish to Release
+      - name: Publish msixbundle
+        if: success()
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
           name: build-${{ github.run_number }}
           files: C:\Package\x64\**\*.msixbundle
+          fail_on_unmatched_files: false
           draft: false
           prerelease: true
