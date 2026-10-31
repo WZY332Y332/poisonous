@@ -1,106 +1,66 @@
-name: Release Builder
+name: Build UWP (x64)
+
+# 相对上游 2022 年的 release-builder.yml，这里做了几处必要现代化：
+#  - checkout@v2 -> v4（v2 依赖已下线的 Node12）
+#  - 移除 release-drafter / upload-release-asset@v1（已废弃，且在 fork 上缺权限）
+#  - 改用 upload-artifact@v4，产物直接下载，不依赖 Release
+#  - 只构建 x64（本机与目标设备都是 x64，构建时间从三份降到一份）
+#  - 增加 push 触发，推送即编译；同时保留手动 dispatch 可指定版本号
 
 on:
   workflow_dispatch:
     inputs:
-      version: 
-        description: '版本号（不含v）'
-        required: true
-        default: '0.0.0.0'
+      version:
+        description: '四段式版本号，例如 2.2310.1.1'
+        required: false
+        default: '2.2310.1.1'
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
-
     env:
-      SigningCertificate: App_TemporaryKey.pfx
       Solution_Path: .\Bili.Uwp.sln
       UWP_Project_Directory: src\App
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SigningCertificate: App_TemporaryKey.pfx
+      BUILD_VERSION: ${{ github.event.inputs.version || '2.2310.1.1' }}
 
     steps:
-    
-    - name: Configure Pagefile
-      uses: al-cheb/configure-pagefile-action@v1.2
-      with:
-        minimum-size: 32GB
-        maximum-size: 32GB
-        disk-root: "C:"
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-    - uses: release-drafter/release-drafter@v5
-      name: Create release draft
-      id: release-drafter
+      - name: Update manifest version
+        shell: pwsh
+        run: |
+          $path = ".\$env:UWP_Project_Directory\Package.appxmanifest"
+          [xml]$manifest = Get-Content $path
+          $manifest.Package.Identity.Version = $env:BUILD_VERSION
+          $manifest.Save((Resolve-Path $path))
+          Write-Host "manifest version = $env:BUILD_VERSION"
 
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.3
+      - name: Build x64
+        run: >
+          msbuild $env:Solution_Path
+          /p:Platform=x64
+          /p:AppxBundlePlatforms="x64"
+          /p:AppxPackageDir=C:\Package\x64
+          /p:PackageCertificateKeyFile=$env:SigningCertificate
+          /restore /v:minimal
+        env:
+          BuildMode: SideloadOnly
+          Configuration: Release
 
-    - name: Update manifest version
-      run: |
-        [xml]$manifest = get-content ".\$env:UWP_Project_Directory\Package.appxmanifest"
-        $manifest.Package.Identity.Version = "${{github.event.inputs.version}}"
-        $manifest.save(".\$env:UWP_Project_Directory\Package.appxmanifest")
-        
-    - name: Build x86
-      run: msbuild $env:Solution_Path /p:Platform=x86 /p:AppxBundlePlatforms="x86" /p:AppxPackageDir=C:\Package\x86 /p:PackageCertificateKeyFile=$env:SigningCertificate /restore
-      env:
-        BuildMode: SideloadOnly
-        Configuration: Release
-        
-    - name: Build x64
-      run: msbuild $env:Solution_Path /p:Platform=x64 /p:AppxBundlePlatforms="x64" /p:AppxPackageDir=C:\Package\x64 /p:PackageCertificateKeyFile=$env:SigningCertificate /restore
-      env:
-        BuildMode: SideloadOnly
-        Configuration: Release
-        
-    - name: Build ARM64
-      run: msbuild $env:Solution_Path /p:Platform=ARM64 /p:AppxBundlePlatforms="ARM64" /p:AppxPackageDir=C:\Package\ARM64 /p:PackageCertificateKeyFile=$env:SigningCertificate /restore
-      env:
-        BuildMode: SideloadOnly
-        Configuration: Release
-   
-    - name: Create x86 archive
-      run: Compress-Archive -Path C:\Package\x86\App_${{github.event.inputs.version}}_Test -DestinationPath C:\Package\Bili.Uwp_${{github.event.inputs.version}}_x86.zip
-      
-    - name: Create x64 archive
-      run: Compress-Archive -Path C:\Package\x64\App_${{github.event.inputs.version}}_Test -DestinationPath C:\Package\Bili.Uwp_${{github.event.inputs.version}}_x64.zip
-      
-    - name: Create ARM64 archive
-      run: Compress-Archive -Path C:\Package\ARM64\App_${{github.event.inputs.version}}_Test -DestinationPath C:\Package\Bili.Uwp_${{github.event.inputs.version}}_ARM64.zip
-
-    - name: Update x86 release asset
-      id: upload-release-asset-x86
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release-drafter.outputs.upload_url }}
-        asset_path: C:\Package\Bili.Uwp_${{github.event.inputs.version}}_x86.zip
-        asset_name: Bili.Uwp_${{github.event.inputs.version}}_x86.zip
-        asset_content_type: application/zip
-        
-    - name: Update x64 release asset
-      id: upload-release-asset-x64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release-drafter.outputs.upload_url }}
-        asset_path: C:\Package\Bili.Uwp_${{github.event.inputs.version}}_x64.zip
-        asset_name: Bili.Uwp_${{github.event.inputs.version}}_x64.zip
-        asset_content_type: application/zip
-        
-    - name: Update ARM64 release asset
-      id: upload-release-asset-ARM64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.release-drafter.outputs.upload_url }}
-        asset_path: C:\Package\Bili.Uwp_${{github.event.inputs.version}}_ARM64.zip
-        asset_name: Bili.Uwp_${{github.event.inputs.version}}_ARM64.zip
-        asset_content_type: application/zip
+      - name: Upload msixbundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: msixbundle-x64
+          path: C:\Package\x64\**\*.msixbundle
+          if-no-files-found: error
+          retention-days: 14
