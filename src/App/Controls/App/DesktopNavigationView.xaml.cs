@@ -61,9 +61,9 @@ namespace Bili.App.Controls.App
             else
             {
                 var pageId = NavigationExtension.GetPageId(args.InvokedItemContainer);
-                if (pageId == PageIds.Favorite)
+                if (pageId == PageIds.Favorite || pageId == PageIds.ViewLater || pageId == PageIds.ViewHistory)
                 {
-                    // 收藏夹需要登录态：未登录时先引导登录，成功后再打开
+                    // 这三个视图都需要登录态：未登录时先引导登录，成功后再打开
                     if (AccountViewModel.State != AuthorizeState.SignedIn)
                     {
                         await AccountViewModel.TrySignInCommand.ExecuteAsync(false);
@@ -71,8 +71,8 @@ namespace Bili.App.Controls.App
 
                     if (AccountViewModel.State == AuthorizeState.SignedIn)
                     {
-                        // 收藏夹沿用既有浮层视图（FavoritePage），避免重复实现页面
-                        ViewModel.NavigateToSecondaryView(PageIds.Favorite);
+                        // 沿用既有的浮层视图，避免重复实现页面
+                        ViewModel.NavigateToSecondaryView(pageId);
                     }
                 }
                 else

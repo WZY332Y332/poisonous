@@ -88,6 +88,16 @@
                         <SymbolIcon Symbol="Favorite" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem ext:NavigationExtension.PageId="ViewLater" Content="稍后再看">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Clock" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem ext:NavigationExtension.PageId="ViewHistory" Content="观看历史">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Calendar" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
                 <muxc:NavigationViewItemSeparator />
 
                 <muxc:NavigationViewItemHeader Content="{loc:Locale Name=Topic}" />
