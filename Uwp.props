@@ -8,7 +8,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22000.0</TargetPlatformVersion>
+    <!-- 原为 10.0.22000.0。GitHub Actions 的 windows-2022 镜像只装了
+         17763 / 19041 / 22621 / 26100 的 UAP 平台，没有 22000，
+         导致 WinRT 引用（Windows.winmd）整批丢失，报数百个 CS0234/CS0246。
+         这里降到 19041，与 Tasks.csproj 及项目原始最低版本保持一致。 -->
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.18362.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <LangVersion>10</LangVersion>
