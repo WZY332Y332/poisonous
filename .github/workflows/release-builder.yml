@@ -16,6 +16,10 @@ on:
         default: '2.2310.2.1'
   push:
     branches: [ main ]
+    # 纯文档提交不触发构建，避免无谓消耗
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
 permissions:
   contents: write
