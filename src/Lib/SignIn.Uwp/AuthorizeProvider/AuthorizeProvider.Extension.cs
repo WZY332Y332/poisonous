@@ -303,7 +303,7 @@ namespace Bili.SignIn.Uwp
             {
                 { Query.AuthCode, _internalQRAuthCode },
                 { Query.LocalId, _guid },
-                { "guid", Guid.NewGuid().ToString() },
+                { "guid", _guid },
             };
 
             try
@@ -471,11 +471,21 @@ namespace Bili.SignIn.Uwp
                 var filter = new HttpBaseProtocolFilter();
                 foreach (var cookieItem in cookieInfo.Cookies)
                 {
+                    // 服务端对部分 Cookie 返回 expires=0（会话级），若直接 FromUnixTimeSeconds(0)
+                    // 会得到 1970 年，Cookie 立即过期，等同于没写入 —— 表现为「扫码成功但仍是未登录」。
+                    var expires = cookieItem.Expires > 0
+                        ? DateTimeOffset.FromUnixTimeSeconds(cookieItem.Expires)
+                        : DateTimeOffset.Now.AddYears(1);
+                    if (expires <= DateTimeOffset.Now)
+                    {
+                        expires = DateTimeOffset.Now.AddYears(1);
+                    }
+
                     filter.CookieManager.SetCookie(new Windows.Web.Http.HttpCookie(cookieItem.Name, domain, "/")
                     {
                         HttpOnly = cookieItem.HttpOnly == 1,
                         Secure = cookieItem.Secure == 1,
-                        Expires = DateTimeOffset.FromUnixTimeSeconds(cookieItem.Expires),
+                        Expires = expires,
                         Value = cookieItem.Value,
                     });
                 }
