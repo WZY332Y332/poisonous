@@ -169,6 +169,7 @@ namespace Bili.SignIn.Uwp
                 if (ok)
                 {
                     _authorizeProvider.StopQRLoginListener();
+
                     // 解除等待：调用方在 Cookie 模式下不需要 TokenInfo
                     _taskCompletionSource.TrySetResult(new AuthorizeResult());
                     Hide();

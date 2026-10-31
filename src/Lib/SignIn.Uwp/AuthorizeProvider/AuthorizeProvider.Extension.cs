@@ -34,6 +34,11 @@ namespace Bili.SignIn.Uwp
     /// </summary>
     public partial class AuthorizeProvider
     {
+        /// <summary>
+        /// 仅 Cookie 登录模式下，本地记录的用户 Id 键名。
+        /// </summary>
+        private const string CookieOnlyMidKey = "CookieOnlyMid";
+
         private readonly IMD5Toolkit _md5Toolkit;
         private readonly ISettingsToolkit _settingsToolkit;
         private readonly string _guid;
@@ -51,9 +56,14 @@ namespace Bili.SignIn.Uwp
         private bool _cookieOnlyMode;
 
         /// <summary>
-        /// 仅 Cookie 登录模式下，本地记录的用户 Id 键名。
+        /// 使用浏览器中已有的 Cookie 登录（无需扫码）。
         /// </summary>
-        private const string CookieOnlyMidKey = "CookieOnlyMid";
+        /// <param name="rawCookie">形如 SESSDATA=...; bili_jct=...; DedeUserID=... 的整段 Cookie。</param>
+        /// <returns>是否登录成功。</returns>
+        internal Task<bool> SignInWithCookieAsync(string rawCookie)
+        {
+            return SignInWithCookieCoreAsync(rawCookie);
+        }
 
         internal async Task<AuthorizeResult> InternalLoginAsync(string userName, string password, int geeType = 10, Dictionary<string, string> additionalParams = null)
         {
@@ -488,6 +498,7 @@ namespace Bili.SignIn.Uwp
                 AppLogger.Info("Auth", $"恢复仅 Cookie 登录态: mid={CurrentUserId}");
                 return;
             }
+
             if (localSettings.Values.ContainsKey(Settings.AuthResultKey))
             {
                 var data = (ApplicationDataCompositeValue)localSettings.Values[Settings.AuthResultKey];
@@ -516,7 +527,7 @@ namespace Bili.SignIn.Uwp
         /// </summary>
         /// <param name="rawCookie">形如 SESSDATA=...; bili_jct=...; DedeUserID=... 的整段 Cookie。</param>
         /// <returns>是否登录成功。</returns>
-        internal async Task<bool> SignInWithCookieAsync(string rawCookie)
+        private async Task<bool> SignInWithCookieCoreAsync(string rawCookie)
         {
             if (string.IsNullOrWhiteSpace(rawCookie))
             {
