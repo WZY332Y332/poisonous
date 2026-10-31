@@ -94,9 +94,9 @@ namespace Bili.SignIn.Uwp
             GenerateAppKey(queryParameters, clientType);
 
             var token = string.Empty;
-            if (await IsTokenValidAsync() && !forcrNoToken)
+            if ((await IsTokenValidAsync() && !forcrNoToken) || _cookieOnlyMode)
             {
-                token = _tokenInfo.AccessToken;
+                token = _tokenInfo?.AccessToken ?? string.Empty;
             }
             else if (needToken)
             {
@@ -166,6 +166,12 @@ namespace Bili.SignIn.Uwp
         /// <inheritdoc/>
         public async Task<string> GetTokenAsync()
         {
+            // 仅 Cookie 模式没有 access_token，直接返回空串，不弹登录框
+            if (_cookieOnlyMode)
+            {
+                return string.Empty;
+            }
+
             try
             {
                 if (_tokenInfo != null)
@@ -188,8 +194,14 @@ namespace Bili.SignIn.Uwp
                 else
                 {
                     var result = await ShowAccountManagementPaneAndGetResultAsync();
-                    SaveAuthorizeResult(result.TokenInfo);
-                    return result.TokenInfo.AccessToken;
+                    if (_cookieOnlyMode)
+                    {
+                        AppLogger.Info("Auth", "对话框返回后已处于仅 Cookie 模式，跳过 token 保存");
+                        return string.Empty;
+                    }
+
+                    SaveAuthorizeResult(result?.TokenInfo);
+                    return result?.TokenInfo?.AccessToken;
                 }
             }
             catch (Exception)
@@ -230,6 +242,8 @@ namespace Bili.SignIn.Uwp
 
             _settingsToolkit.DeleteLocalSetting(SettingNames.BiliUserId);
             _settingsToolkit.DeleteLocalSetting(SettingNames.AuthorizeResult);
+            _settingsToolkit.DeleteLocalSetting(CookieOnlyMidKey);
+            _cookieOnlyMode = false;
 
             if (_tokenInfo != null)
             {
@@ -245,6 +259,12 @@ namespace Bili.SignIn.Uwp
         /// <inheritdoc/>
         public async Task<bool> IsTokenValidAsync(bool isNetworkVerify = false)
         {
+            // 仅 Cookie 模式没有 token 概念，只要处于登录态即视为有效
+            if (_cookieOnlyMode)
+            {
+                return State == AuthorizeState.SignedIn;
+            }
+
             var isLocalValid = _tokenInfo != null &&
                 !string.IsNullOrEmpty(_tokenInfo.AccessToken) &&
                 _lastAuthorizeTime != null &&

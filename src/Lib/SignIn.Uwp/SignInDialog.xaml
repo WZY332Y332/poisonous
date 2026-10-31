@@ -1,4 +1,4 @@
-﻿<ContentDialog
+<ContentDialog
     x:Class="Bili.SignIn.Uwp.SignInDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -118,14 +118,51 @@
                     VerticalAlignment="Center"
                     IsActive="False" />
             </Grid>
-            <HyperlinkButton
-                x:Name="RefreshQRButton"
-                Style="{StaticResource DefaultHyperlinkButtonStyle}"
+            <StackPanel
                 Grid.Row="1"
-                HorizontalAlignment="Stretch"
-                Click="OnRefreshQRButtonClickAsync"
-                Content="{local:Locale Name=Refresh}" />
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Spacing="16">
+                <HyperlinkButton
+                    x:Name="RefreshQRButton"
+                    Style="{StaticResource DefaultHyperlinkButtonStyle}"
+                    Click="OnRefreshQRButtonClickAsync"
+                    Content="{local:Locale Name=Refresh}" />
+                <HyperlinkButton
+                    x:Name="CookieLoginEntryButton"
+                    Style="{StaticResource DefaultHyperlinkButtonStyle}"
+                    Click="OnCookieLoginEntryClick"
+                    Content="使用 Cookie 登录" />
+            </StackPanel>
         </Grid>
+
+        <StackPanel
+            x:Name="CookieLoginContainer"
+            Grid.Row="2"
+            Spacing="8"
+            Visibility="Collapsed">
+            <TextBlock
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Opacity="0.7"
+                TextWrapping="Wrap"
+                Text="粘贴浏览器中的 Cookie，至少需要 SESSDATA。可用浏览器开发者工具（F12）→ Application/应用 → Cookies → https://www.bilibili.com 复制。" />
+            <TextBox
+                x:Name="CookieBox"
+                Height="110"
+                AcceptsReturn="True"
+                TextWrapping="Wrap"
+                PlaceholderText="SESSDATA=xxx; bili_jct=yyy; DedeUserID=zzz" />
+            <ProgressBar
+                x:Name="CookieProgressBar"
+                HorizontalAlignment="Stretch"
+                IsIndeterminate="True"
+                Visibility="Collapsed" />
+            <HyperlinkButton
+                Style="{StaticResource DefaultHyperlinkButtonStyle}"
+                HorizontalAlignment="Center"
+                Click="OnBackToQrClick"
+                Content="返回二维码登录" />
+        </StackPanel>
 
         <Grid
             x:Name="WebViewContainer"

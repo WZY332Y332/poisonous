@@ -36,6 +36,7 @@ namespace Bili.SignIn.Uwp
         private readonly AuthorizeProvider _authorizeProvider;
         private LoginType _loginType;
         private string _sessionId;
+        private bool _isCookieMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignInDialog"/> class.
@@ -117,9 +118,74 @@ namespace Bili.SignIn.Uwp
         private async void OnPrimaryButtonClickAsync(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             args.Cancel = true;
-            if (_loginType == LoginType.Password)
+            if (_isCookieMode)
+            {
+                await HandleCookieLoginAsync();
+            }
+            else if (_loginType == LoginType.Password)
             {
                 await HandlePasswordLoginAsync();
+            }
+        }
+
+        private void OnCookieLoginEntryClick(object sender, RoutedEventArgs e)
+        {
+            _isCookieMode = true;
+            _authorizeProvider.StopQRLoginListener();
+            QRLoginContainer.Visibility = Visibility.Collapsed;
+            CookieLoginContainer.Visibility = Visibility.Visible;
+            PrimaryButtonText = "登录";
+            IsPrimaryButtonEnabled = true;
+            HideError();
+            TipBlock.Text = "将浏览器中已登录的 Cookie 粘贴到下方，可直接完成登录。";
+            AppLogger.Info("UI", "切换到 Cookie 登录模式");
+        }
+
+        private async void OnBackToQrClick(object sender, RoutedEventArgs e)
+        {
+            _isCookieMode = false;
+            CookieLoginContainer.Visibility = Visibility.Collapsed;
+            QRLoginContainer.Visibility = Visibility.Visible;
+            PrimaryButtonText = string.Empty;
+            await SwitchLoginTypeAsync(LoginType.QRCode);
+            await LoadQRCodeAsync();
+        }
+
+        private async Task HandleCookieLoginAsync()
+        {
+            var raw = CookieBox.Text;
+            HideError();
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                ShowError("请先粘贴 Cookie");
+                return;
+            }
+
+            try
+            {
+                CookieProgressBar.Visibility = Visibility.Visible;
+                IsPrimaryButtonEnabled = false;
+                var ok = await _authorizeProvider.SignInWithCookieAsync(raw);
+                if (ok)
+                {
+                    _authorizeProvider.StopQRLoginListener();
+                    // 解除等待：调用方在 Cookie 模式下不需要 TokenInfo
+                    _taskCompletionSource.TrySetResult(new AuthorizeResult());
+                    Hide();
+                    return;
+                }
+
+                ShowError("Cookie 登录失败");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("UI", "Cookie 登录异常", ex);
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                CookieProgressBar.Visibility = Visibility.Collapsed;
+                IsPrimaryButtonEnabled = true;
             }
         }
 

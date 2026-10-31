@@ -45,6 +45,16 @@ namespace Bili.SignIn.Uwp
         private DispatcherTimer _qrTimer;
         private CancellationTokenSource _qrPollCancellationTokenSource;
 
+        /// <summary>
+        /// 是否处于「仅 Cookie」登录模式（无 access_token，鉴权依赖 Cookie）。
+        /// </summary>
+        private bool _cookieOnlyMode;
+
+        /// <summary>
+        /// 仅 Cookie 登录模式下，本地记录的用户 Id 键名。
+        /// </summary>
+        private const string CookieOnlyMidKey = "CookieOnlyMid";
+
         internal async Task<AuthorizeResult> InternalLoginAsync(string userName, string password, int geeType = 10, Dictionary<string, string> additionalParams = null)
         {
             var encryptedPwd = await EncryptedPasswordAsync(password);
@@ -465,6 +475,19 @@ namespace Bili.SignIn.Uwp
         private void RetrieveAuthorizeResult()
         {
             var localSettings = ApplicationData.Current.LocalSettings;
+
+            // 先看是否处于「仅 Cookie」登录模式（手动粘贴 Cookie 登录）
+            var cookieOnlyMid = localSettings.Values[CookieOnlyMidKey];
+            if (cookieOnlyMid != null)
+            {
+                _cookieOnlyMode = true;
+                CurrentUserId = cookieOnlyMid.ToString();
+                _tokenInfo = null;
+                _lastAuthorizeTime = DateTimeOffset.Now;
+                State = AuthorizeState.SignedIn;
+                AppLogger.Info("Auth", $"恢复仅 Cookie 登录态: mid={CurrentUserId}");
+                return;
+            }
             if (localSettings.Values.ContainsKey(Settings.AuthResultKey))
             {
                 var data = (ApplicationDataCompositeValue)localSettings.Values[Settings.AuthResultKey];
@@ -486,6 +509,77 @@ namespace Bili.SignIn.Uwp
                 _tokenInfo = null;
                 _lastAuthorizeTime = default;
             }
+        }
+
+        /// <summary>
+        /// 使用浏览器中已有的 Cookie 登录（无需扫码）。成功后进入「仅 Cookie」模式。
+        /// </summary>
+        /// <param name="rawCookie">形如 SESSDATA=...; bili_jct=...; DedeUserID=... 的整段 Cookie。</param>
+        /// <returns>是否登录成功。</returns>
+        internal async Task<bool> SignInWithCookieAsync(string rawCookie)
+        {
+            if (string.IsNullOrWhiteSpace(rawCookie))
+            {
+                throw new ArgumentException("Cookie 内容为空");
+            }
+
+            var cookies = new List<Cookies>();
+            foreach (var segment in rawCookie.Split(new[] { ';', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var index = segment.IndexOf('=');
+                if (index <= 0)
+                {
+                    continue;
+                }
+
+                var name = segment.Substring(0, index).Trim();
+                var value = segment.Substring(index + 1).Trim();
+                if (name.Length == 0)
+                {
+                    continue;
+                }
+
+                cookies.Add(new Cookies { Name = name, Value = value, HttpOnly = 0, Secure = 0, Expires = 0 });
+            }
+
+            if (!cookies.Any(c => c.Name.Equals("SESSDATA", StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new InvalidOperationException("Cookie 中缺少 SESSDATA，无法登录");
+            }
+
+            AppLogger.Info("Cookie", $"手动 Cookie 登录: 解析到 {cookies.Count} 条, 名称=[{string.Join(",", cookies.Select(c => c.Name))}]");
+
+            SaveCookie(new CookieInfo { Cookies = cookies });
+
+            // 用 nav 接口校验 Cookie 是否有效，同时取回用户信息
+            var httpProvider = Locator.Instance.GetService<IHttpProvider>();
+            var request = await httpProvider.GetRequestMessageAsync(HttpMethod.Get, "https://api.bilibili.com/x/web-interface/nav", null, needCookie: true);
+            var response = await httpProvider.SendAsync(request);
+            var text = await response.Content.ReadAsStringAsync();
+            var jobj = JObject.Parse(text);
+            var code = (int)jobj["code"];
+            if (code != 0)
+            {
+                throw new InvalidOperationException($"Cookie 校验失败，服务端返回 {code}: {jobj["message"]}");
+            }
+
+            var data = jobj["data"];
+            if (data == null || !(bool)data["isLogin"])
+            {
+                throw new InvalidOperationException("Cookie 校验失败：服务端返回未登录（Cookie 可能已失效）");
+            }
+
+            var mid = (long)data["mid"];
+            var uname = (string)data["uname"];
+
+            _cookieOnlyMode = true;
+            CurrentUserId = mid.ToString();
+            _tokenInfo = null;
+            _lastAuthorizeTime = DateTimeOffset.Now;
+            ApplicationData.Current.LocalSettings.Values[CookieOnlyMidKey] = mid;
+            State = AuthorizeState.SignedIn;
+            AppLogger.Info("Auth", $"Cookie 登录成功: mid={mid}, uname={uname}");
+            return true;
         }
 
         private void SaveCookie(CookieInfo cookieInfo)
