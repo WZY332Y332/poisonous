@@ -481,23 +481,43 @@ namespace Bili.SignIn.Uwp
 
         private void SaveCookie(CookieInfo cookieInfo)
         {
-            var domain = ApiConstants.CookieSetDomain;
-
-            if (cookieInfo != null && cookieInfo.Cookies != null)
+            if (cookieInfo == null || cookieInfo.Cookies == null)
             {
-                var filter = new HttpBaseProtocolFilter();
-                foreach (var cookieItem in cookieInfo.Cookies)
-                {
-                    // 服务端对部分 Cookie 返回 expires=0（会话级），若直接 FromUnixTimeSeconds(0)
-                    // 会得到 1970 年，Cookie 立即过期，等同于没写入 —— 表现为「扫码成功但仍是未登录」。
-                    var expires = cookieItem.Expires > 0
-                        ? DateTimeOffset.FromUnixTimeSeconds(cookieItem.Expires)
-                        : DateTimeOffset.Now.AddYears(1);
-                    if (expires <= DateTimeOffset.Now)
-                    {
-                        expires = DateTimeOffset.Now.AddYears(1);
-                    }
+                return;
+            }
 
+            // 关键：必须用带前导点的域，Cookie 才能被 api.bilibili.com / app.bilibili.com 等子域共享。
+            // 原来只写 "bilibili.com"（无前导点）会被当作主机级 Cookie，子域请求根本带不上，
+            // 于是「扫码成功、弹窗关闭，但随后拉取用户信息失败又被自动登出」。
+            var domains = new List<string> { ".bilibili.com" };
+            if (cookieInfo.Domains != null)
+            {
+                foreach (var d in cookieInfo.Domains)
+                {
+                    if (!string.IsNullOrWhiteSpace(d)
+                        && d.IndexOf("bilibili.com", StringComparison.OrdinalIgnoreCase) >= 0
+                        && !domains.Contains(d))
+                    {
+                        domains.Add(d);
+                    }
+                }
+            }
+
+            var filter = new HttpBaseProtocolFilter();
+            foreach (var cookieItem in cookieInfo.Cookies)
+            {
+                // 服务端对部分 Cookie 返回 expires=0（会话级），若直接 FromUnixTimeSeconds(0)
+                // 会得到 1970 年，Cookie 立即过期，等同于没写入 —— 表现为「扫码成功但仍是未登录」。
+                var expires = cookieItem.Expires > 0
+                    ? DateTimeOffset.FromUnixTimeSeconds(cookieItem.Expires)
+                    : DateTimeOffset.Now.AddYears(1);
+                if (expires <= DateTimeOffset.Now)
+                {
+                    expires = DateTimeOffset.Now.AddYears(1);
+                }
+
+                foreach (var domain in domains)
+                {
                     filter.CookieManager.SetCookie(new Windows.Web.Http.HttpCookie(cookieItem.Name, domain, "/")
                     {
                         HttpOnly = cookieItem.HttpOnly == 1,
@@ -506,6 +526,14 @@ namespace Bili.SignIn.Uwp
                         Value = cookieItem.Value,
                     });
                 }
+            }
+
+            // 回读校验：写不进去时宁可显式报错，也不要静默「登录成功」后被自动登出
+            var saved = filter.CookieManager.GetCookies(new Uri(ApiConstants.CookieGetDomain));
+            if (!saved.Any(c => c.Name == "SESSDATA"))
+            {
+                throw new InvalidOperationException(
+                    "登录 Cookie 写入后回读失败，未找到 SESSDATA（域: " + string.Join(",", domains) + "）");
             }
         }
 
