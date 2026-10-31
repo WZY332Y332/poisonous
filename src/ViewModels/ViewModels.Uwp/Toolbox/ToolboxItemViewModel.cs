@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using Bili.Models.Enums;
 using Bili.Toolkit.Interfaces;
@@ -42,6 +42,10 @@ namespace Bili.ViewModels.Uwp.Toolbox
                 case ToolboxItemType.CoverDownloader:
                     Title = _resourceToolkit.GetLocaleString(LanguageNames.CoverDownloader);
                     Description = _resourceToolkit.GetLocaleString(LanguageNames.CoverDownloaderDescription);
+                    break;
+                case ToolboxItemType.CookieBackup:
+                    Title = "登录 Cookie 备份";
+                    Description = "把当前登录 Cookie 复制到剪贴板，便于备份或迁移到其他设备";
                     break;
                 default:
                     break;

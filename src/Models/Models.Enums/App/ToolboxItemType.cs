@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 namespace Bili.Models.Enums
 {
@@ -16,5 +16,10 @@ namespace Bili.Models.Enums
         /// 视频封面下载器.
         /// </summary>
         CoverDownloader,
+
+        /// <summary>
+        /// 登录 Cookie 备份（复制到剪贴板）.
+        /// </summary>
+        CookieBackup,
     }
 }

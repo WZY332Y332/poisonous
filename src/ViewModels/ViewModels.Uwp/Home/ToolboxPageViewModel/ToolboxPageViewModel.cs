@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using System.Collections.ObjectModel;
 using Bili.DI.Container;
@@ -22,6 +22,7 @@ namespace Bili.ViewModels.Uwp.Home
             {
                 GetItemViewModel(ToolboxItemType.AvBvConverter),
                 GetItemViewModel(ToolboxItemType.CoverDownloader),
+                GetItemViewModel(ToolboxItemType.CookieBackup),
             };
         }
 
