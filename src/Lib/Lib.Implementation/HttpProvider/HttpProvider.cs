@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -178,12 +178,19 @@ namespace Bili.Lib
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             HttpResponseMessage response = null;
+
+            // 只记录到 path，避免把 access_token 等查询参数写进日志
+            var uri = request?.RequestUri == null ? "(null)" : request.RequestUri.GetLeftPart(UriPartial.Path);
+            var hasCookie = request != null && request.Headers.Contains("Cookie");
+
             try
             {
                 response = await SendRequestAsync(request, cancellationToken);
+                AppLogger.Info("HTTP", $"{request.Method} {uri} => {(int)response.StatusCode} 带Cookie={hasCookie}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AppLogger.Error("HTTP", $"{request.Method} {uri} 请求异常 带Cookie={hasCookie}", ex);
                 throw;
             }
 

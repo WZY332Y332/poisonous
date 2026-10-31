@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Threading.Tasks;
@@ -50,12 +50,14 @@ namespace Bili.ViewModels.Uwp.Account
 
         private void HandleLogged()
         {
+            AppLogger.Info("Account", $"HandleLogged 进入, State={State}");
             if (State == AuthorizeState.SignedIn)
             {
                 LoadMyProfileCommand.ExecuteAsync(null).ContinueWith(async t =>
                 {
                     if (t.Status == TaskStatus.RanToCompletion)
                     {
+                        AppLogger.Info("Account", "拉取用户信息成功");
                         await _dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                         {
                             IsConnected = true;
@@ -65,6 +67,7 @@ namespace Bili.ViewModels.Uwp.Account
                     }
                     else
                     {
+                        AppLogger.Error("Account", "拉取用户信息失败，将自动登出", t.Exception);
                         await _dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                         {
                             await SignOutAsync();
@@ -76,6 +79,8 @@ namespace Bili.ViewModels.Uwp.Account
 
         private void HandleLoggingFailed(Exception exception)
         {
+            AppLogger.Warn("Account", $"HandleLoggingFailed: {exception?.GetType().Name}: {exception?.Message}, State={State}");
+
             // 它仅在用户未登录时触发.
             if (State != AuthorizeState.SignedIn)
             {

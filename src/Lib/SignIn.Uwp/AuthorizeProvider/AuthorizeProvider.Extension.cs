@@ -315,14 +315,20 @@ namespace Bili.SignIn.Uwp
 
                 try
                 {
+                    AppLogger.Info(
+                        "QR",
+                        $"轮询成功: mid={result.Data?.Mid}, token长度={result.Data?.AccessToken?.Length ?? 0}, cookie条数={result.Data?.CookieInfo?.Cookies?.Count ?? 0}");
+
                     // 保存cookie
                     SaveCookie(result.Data.CookieInfo);
                     SaveAuthorizeResult(result.Data);
+                    AppLogger.Info("QR", "保存登录信息完成，触发 Success 事件");
                     QRCodeStatusChanged?.Invoke(this, new Tuple<QRCodeStatus, TokenInfo>(QRCodeStatus.Success, result.Data));
                 }
                 catch (Exception ex)
                 {
                     // 扫码已成功但本地保存失败：把真实原因暴露出去，不再静默显示「登录失败」
+                    AppLogger.Error("QR", "保存登录信息失败", ex);
                     LastQRCodeError = $"保存登录信息失败: {ex.GetType().Name}: {ex.Message}";
                     QRCodeStatusChanged?.Invoke(this, new Tuple<QRCodeStatus, TokenInfo>(QRCodeStatus.Failed, null));
                 }
@@ -337,6 +343,7 @@ namespace Bili.SignIn.Uwp
                 if (se.Error != null)
                 {
                     LastQRCodeError = $"服务端返回 {se.Error.Code}: {se.Error.Message}";
+                    AppLogger.Warn("QR", $"轮询返回业务错误: code={se.Error.Code}, message={se.Error.Message}");
 
                     QRCodeStatus qrStatus = default;
                     if (se.Error.Code == 86039 || se.Error.Code == 86090)
@@ -357,6 +364,7 @@ namespace Bili.SignIn.Uwp
                 else
                 {
                     // 没有业务错误码（多为响应解析失败），同样要给出可读原因
+                    AppLogger.Error("QR", "轮询异常（无业务错误码）", se);
                     LastQRCodeError = $"响应解析失败: {se.GetType().Name}: {se.Message}";
                     QRCodeStatusChanged?.Invoke(this, new Tuple<QRCodeStatus, TokenInfo>(QRCodeStatus.Failed, null));
                 }
@@ -450,6 +458,7 @@ namespace Bili.SignIn.Uwp
                 _lastAuthorizeTime = saveTime;
                 _tokenInfo = result;
                 State = AuthorizeState.SignedIn;
+                AppLogger.Info("Auth", $"SaveAuthorizeResult 完成: mid={result.Mid}, token长度={result.AccessToken?.Length ?? 0}, 过期秒={result.ExpiresIn}");
             }
         }
 
@@ -504,6 +513,7 @@ namespace Bili.SignIn.Uwp
             }
 
             var filter = new HttpBaseProtocolFilter();
+            AppLogger.Info("Cookie", $"开始写入: 域=[{string.Join(",", domains)}], 条目数={cookieInfo.Cookies.Count}");
             foreach (var cookieItem in cookieInfo.Cookies)
             {
                 // 服务端对部分 Cookie 返回 expires=0（会话级），若直接 FromUnixTimeSeconds(0)
@@ -530,6 +540,7 @@ namespace Bili.SignIn.Uwp
 
             // 回读校验：写不进去时宁可显式报错，也不要静默「登录成功」后被自动登出
             var saved = filter.CookieManager.GetCookies(new Uri(ApiConstants.CookieGetDomain));
+            AppLogger.Info("Cookie", $"回读结果: {saved.Count} 条, 含 SESSDATA={saved.Any(c => c.Name == "SESSDATA")}, 名称=[{string.Join(",", saved.Select(c => c.Name))}]");
             if (!saved.Any(c => c.Name == "SESSDATA"))
             {
                 throw new InvalidOperationException(

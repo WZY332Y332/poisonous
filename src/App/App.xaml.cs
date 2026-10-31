@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Text;
@@ -30,6 +30,10 @@ namespace Bili.App
         public App()
         {
             InitializeComponent();
+
+            // 早期初始化诊断日志：固定写到包目录 LocalState\BiliDiag，便于真机取日志排查登录问题
+            Bili.Models.App.Other.AppLogger.Initialize(Windows.Storage.ApplicationData.Current.LocalFolder.Path);
+
             DIFactory.RegisterAppRequiredServices();
             Suspending += OnSuspending;
             UnhandledException += OnUnhandledException;

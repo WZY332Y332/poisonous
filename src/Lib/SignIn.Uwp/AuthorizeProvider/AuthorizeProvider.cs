@@ -8,6 +8,7 @@ using Bili.DI.Container;
 using Bili.Lib.Interfaces;
 using Bili.Models.App.Args;
 using Bili.Models.App.Constants;
+using Bili.Models.App.Other;
 using Bili.Models.BiliBili;
 using Bili.Models.Enums;
 using Bili.Toolkit.Interfaces;
@@ -56,6 +57,7 @@ namespace Bili.SignIn.Uwp
                 if (oldState != newState)
                 {
                     _state = newState;
+                    AppLogger.Info("Auth", $"状态变化 {oldState} -> {newState}");
                     StateChanged?.Invoke(this, new AuthorizeStateChangedEventArgs(oldState, newState));
                 }
             }
@@ -155,6 +157,9 @@ namespace Bili.SignIn.Uwp
                 return $"{x.Name}={x.Value}";
             });
             var result = string.Join(';', cookieList);
+            AppLogger.Info(
+                "Auth",
+                $"读取 Cookie(域 {ApiConstants.CookieGetDomain}): 共 {cookies.Count} 条, 长度 {result.Length}, 含 SESSDATA={result.Contains("SESSDATA")}, 名称=[{string.Join(",", cookies.Select(x => x.Name))}]");
             return result;
         }
 
@@ -249,6 +254,7 @@ namespace Bili.SignIn.Uwp
                 ? await NetworkVerifyTokenAsync()
                 : isLocalValid;
 
+            AppLogger.Info("Auth", $"IsTokenValidAsync(网络校验={isNetworkVerify}) => 本地有效={isLocalValid}, 结果={result}, 有Token={_tokenInfo?.AccessToken != null}");
             return result;
         }
     }
