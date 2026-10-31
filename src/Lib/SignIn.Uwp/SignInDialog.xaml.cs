@@ -105,6 +105,7 @@ namespace Bili.SignIn.Uwp
                         _authorizeProvider.StopQRLoginListener();
                         break;
                     }
+
                 default:
                     break;
             }
