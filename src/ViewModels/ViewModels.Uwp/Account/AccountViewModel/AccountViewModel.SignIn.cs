@@ -67,11 +67,10 @@ namespace Bili.ViewModels.Uwp.Account
                     }
                     else
                     {
-                        AppLogger.Error("Account", "拉取用户信息失败，将自动登出", t.Exception);
-                        await _dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                        {
-                            await SignOutAsync();
-                        });
+                        // 拉取用户资料失败不应该导致登出：
+                        // 仅 Cookie 登录模式没有 access_token，依赖 gRPC 的接口必然失败，
+                        // 若因此登出就会陷入「登录成功 -> 立刻掉线」。保持登录态，仅记录错误。
+                        AppLogger.Error("Account", "拉取用户信息失败（保持登录态，不自动登出）", t.Exception);
                     }
                 });
             }
