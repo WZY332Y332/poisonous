@@ -39,6 +39,12 @@ namespace Bili.SignIn.Uwp
         /// </summary>
         private const string CookieOnlyMidKey = "CookieOnlyMid";
 
+        /// <summary>
+        /// 缓存的 Cookie 字符串键名。WinRT 的 CookieManager 在部分场景下不生效，
+        /// 因此登录成功后把 Cookie 串缓存下来，请求时直接注入 Cookie 头。
+        /// </summary>
+        private const string CookieStringKey = "CookieStringCache";
+
         private readonly IMD5Toolkit _md5Toolkit;
         private readonly ISettingsToolkit _settingsToolkit;
         private readonly string _guid;
@@ -54,6 +60,11 @@ namespace Bili.SignIn.Uwp
         /// 是否处于「仅 Cookie」登录模式（无 access_token，鉴权依赖 Cookie）。
         /// </summary>
         private bool _cookieOnlyMode;
+
+        /// <summary>
+        /// 缓存的 Cookie 字符串（登录成功后写入，请求时直接使用）。
+        /// </summary>
+        private string _cookieString;
 
         /// <summary>
         /// 使用浏览器中已有的 Cookie 登录（无需扫码）。
@@ -491,11 +502,12 @@ namespace Bili.SignIn.Uwp
             if (cookieOnlyMid != null)
             {
                 _cookieOnlyMode = true;
+                _cookieString = localSettings.Values[CookieStringKey] as string;
                 CurrentUserId = cookieOnlyMid.ToString();
                 _tokenInfo = null;
                 _lastAuthorizeTime = DateTimeOffset.Now;
                 State = AuthorizeState.SignedIn;
-                AppLogger.Info("Auth", $"恢复仅 Cookie 登录态: mid={CurrentUserId}");
+                AppLogger.Info("Auth", $"恢复仅 Cookie 登录态: mid={CurrentUserId}, Cookie长度={_cookieString?.Length ?? 0}");
                 return;
             }
 
@@ -600,40 +612,34 @@ namespace Bili.SignIn.Uwp
                 return;
             }
 
-            // 关键：必须用带前导点的域，Cookie 才能被 api.bilibili.com / app.bilibili.com 等子域共享。
-            // 原来只写 "bilibili.com"（无前导点）会被当作主机级 Cookie，子域请求根本带不上，
-            // 于是「扫码成功、弹窗关闭，但随后拉取用户信息失败又被自动登出」。
-            var domains = new List<string> { ".bilibili.com" };
-            if (cookieInfo.Domains != null)
+            // 1) 先把 Cookie 缓存成字符串：这是最可靠的一层，请求时直接注入 Cookie 头，
+            //    完全不依赖 WinRT 的 CookieManager 行为。
+            _cookieString = string.Join(
+                "; ",
+                cookieInfo.Cookies
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Name))
+                    .Select(c => $"{c.Name}={c.Value}"));
+            ApplicationData.Current.LocalSettings.Values[CookieStringKey] = _cookieString;
+            AppLogger.Info("Cookie", $"已缓存 Cookie: {cookieInfo.Cookies.Count} 条, 长度={_cookieString.Length}, 含 SESSDATA={_cookieString.Contains("SESSDATA")}");
+
+            // 2) 再尽量写入 WinRT 容器（失败不影响登录）。
+            //    注意：域不能带前导点，否则 SetCookie 会抛 0x800710DD「操作标识符不正确」。
+            try
             {
-                foreach (var d in cookieInfo.Domains)
+                var filter = new HttpBaseProtocolFilter();
+                foreach (var cookieItem in cookieInfo.Cookies)
                 {
-                    if (!string.IsNullOrWhiteSpace(d)
-                        && d.IndexOf("bilibili.com", StringComparison.OrdinalIgnoreCase) >= 0
-                        && !domains.Contains(d))
+                    // 服务端对部分 Cookie 返回 expires=0（会话级），若直接 FromUnixTimeSeconds(0)
+                    // 会得到 1970 年，Cookie 立即过期，等同于没写入。
+                    var expires = cookieItem.Expires > 0
+                        ? DateTimeOffset.FromUnixTimeSeconds(cookieItem.Expires)
+                        : DateTimeOffset.Now.AddYears(1);
+                    if (expires <= DateTimeOffset.Now)
                     {
-                        domains.Add(d);
+                        expires = DateTimeOffset.Now.AddYears(1);
                     }
-                }
-            }
 
-            var filter = new HttpBaseProtocolFilter();
-            AppLogger.Info("Cookie", $"开始写入: 域=[{string.Join(",", domains)}], 条目数={cookieInfo.Cookies.Count}");
-            foreach (var cookieItem in cookieInfo.Cookies)
-            {
-                // 服务端对部分 Cookie 返回 expires=0（会话级），若直接 FromUnixTimeSeconds(0)
-                // 会得到 1970 年，Cookie 立即过期，等同于没写入 —— 表现为「扫码成功但仍是未登录」。
-                var expires = cookieItem.Expires > 0
-                    ? DateTimeOffset.FromUnixTimeSeconds(cookieItem.Expires)
-                    : DateTimeOffset.Now.AddYears(1);
-                if (expires <= DateTimeOffset.Now)
-                {
-                    expires = DateTimeOffset.Now.AddYears(1);
-                }
-
-                foreach (var domain in domains)
-                {
-                    filter.CookieManager.SetCookie(new Windows.Web.Http.HttpCookie(cookieItem.Name, domain, "/")
+                    filter.CookieManager.SetCookie(new Windows.Web.Http.HttpCookie(cookieItem.Name, ApiConstants.CookieSetDomain, "/")
                     {
                         HttpOnly = cookieItem.HttpOnly == 1,
                         Secure = cookieItem.Secure == 1,
@@ -641,15 +647,13 @@ namespace Bili.SignIn.Uwp
                         Value = cookieItem.Value,
                     });
                 }
-            }
 
-            // 回读校验：写不进去时宁可显式报错，也不要静默「登录成功」后被自动登出
-            var saved = filter.CookieManager.GetCookies(new Uri(ApiConstants.CookieGetDomain));
-            AppLogger.Info("Cookie", $"回读结果: {saved.Count} 条, 含 SESSDATA={saved.Any(c => c.Name == "SESSDATA")}, 名称=[{string.Join(",", saved.Select(c => c.Name))}]");
-            if (!saved.Any(c => c.Name == "SESSDATA"))
+                var saved = filter.CookieManager.GetCookies(new Uri(ApiConstants.CookieGetDomain));
+                AppLogger.Info("Cookie", $"WinRT 容器回读: {saved.Count} 条, 含 SESSDATA={saved.Any(c => c.Name == "SESSDATA")}");
+            }
+            catch (Exception ex)
             {
-                throw new InvalidOperationException(
-                    "登录 Cookie 写入后回读失败，未找到 SESSDATA（域: " + string.Join(",", domains) + "）");
+                AppLogger.Warn("Cookie", "写入 WinRT Cookie 容器失败（已用缓存字符串兜底）: " + ex.Message);
             }
         }
 

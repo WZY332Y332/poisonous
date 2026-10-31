@@ -150,6 +150,12 @@ namespace Bili.SignIn.Uwp
         /// <inheritdoc/>
         public string GetCookieString()
         {
+            // 优先使用登录成功后缓存的 Cookie 串：比 WinRT CookieManager 可靠
+            if (!string.IsNullOrEmpty(_cookieString))
+            {
+                return _cookieString;
+            }
+
             var fiter = new HttpBaseProtocolFilter();
             var cookies = fiter.CookieManager.GetCookies(new Uri(ApiConstants.CookieGetDomain));
             var cookieList = cookies.Select(x =>
