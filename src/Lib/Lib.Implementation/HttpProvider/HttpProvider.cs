@@ -109,6 +109,17 @@ namespace Bili.Lib
                 var query = await _authenticationProvider.GenerateAuthorizedQueryDictionaryAsync(queryParams, clientType, needToken);
                 requestMessage = new HttpRequestMessage(method, url);
                 requestMessage.Content = new FormUrlEncodedContent(query);
+
+                // 写操作（点赞/投币/收藏）都是 POST，而仅 Cookie 模式下没有 access_key，
+                // 必须靠 Cookie 鉴权。登录类请求不加，避免干扰签名。
+                if (!url.Contains("passport.bilibili.com"))
+                {
+                    var cookieString = _authenticationProvider.GetCookieString();
+                    if (!string.IsNullOrEmpty(cookieString))
+                    {
+                        requestMessage.Headers.Add("Cookie", cookieString);
+                    }
+                }
             }
 
             return requestMessage;
