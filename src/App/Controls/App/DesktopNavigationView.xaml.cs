@@ -52,7 +52,7 @@ namespace Bili.App.Controls.App
             CheckMenuButtonVisibility();
         }
 
-        private void OnRootNavViewItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
+        private async void OnRootNavViewItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
         {
             if (args.IsSettingsInvoked)
             {
@@ -63,8 +63,17 @@ namespace Bili.App.Controls.App
                 var pageId = NavigationExtension.GetPageId(args.InvokedItemContainer);
                 if (pageId == PageIds.Favorite)
                 {
-                    // 收藏夹沿用既有浮层视图（FavoritePage），避免重复实现页面
-                    ViewModel.NavigateToSecondaryView(PageIds.Favorite);
+                    // 收藏夹需要登录态：未登录时先引导登录，成功后再打开
+                    if (AccountViewModel.State != AuthorizeState.SignedIn)
+                    {
+                        await AccountViewModel.TrySignInCommand.ExecuteAsync(false);
+                    }
+
+                    if (AccountViewModel.State == AuthorizeState.SignedIn)
+                    {
+                        // 收藏夹沿用既有浮层视图（FavoritePage），避免重复实现页面
+                        ViewModel.NavigateToSecondaryView(PageIds.Favorite);
+                    }
                 }
                 else
                 {

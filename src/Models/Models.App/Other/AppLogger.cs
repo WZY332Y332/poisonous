@@ -47,26 +47,6 @@ namespace Bili.Models.App.Other
         /// <summary>
         /// 清理超过 7 天的历史日志，避免长期使用后占用空间。
         /// </summary>
-        /// <param name="directory">日志目录。</param>
-        private static void CleanupOldLogs(string directory)
-        {
-            try
-            {
-                var deadline = DateTime.Now.AddDays(-7);
-                foreach (var file in Directory.GetFiles(directory, "bili-*.log"))
-                {
-                    if (File.GetLastWriteTime(file) < deadline)
-                    {
-                        File.Delete(file);
-                    }
-                }
-            }
-            catch
-            {
-                // 清理失败不影响主流程
-            }
-        }
-
         /// <summary>
         /// 记录一般信息。
         /// </summary>
@@ -154,6 +134,29 @@ namespace Bili.Models.App.Other
             catch
             {
                 _logFile = null;
+            }
+        }
+
+        /// <summary>
+        /// 清理超过 7 天的历史日志，避免长期使用后占用空间。
+        /// </summary>
+        /// <param name="directory">日志目录。</param>
+        private static void CleanupOldLogs(string directory)
+        {
+            try
+            {
+                var deadline = DateTime.Now.AddDays(-7);
+                foreach (var file in Directory.GetFiles(directory, "bili-*.log"))
+                {
+                    if (File.GetLastWriteTime(file) < deadline)
+                    {
+                        File.Delete(file);
+                    }
+                }
+            }
+            catch
+            {
+                // 清理失败不影响主流程
             }
         }
     }
