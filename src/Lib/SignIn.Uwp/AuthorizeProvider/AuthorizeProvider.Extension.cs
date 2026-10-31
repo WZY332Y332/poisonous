@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -313,10 +313,19 @@ namespace Bili.SignIn.Uwp
                 var response = await httpProvider.SendAsync(request, _qrPollCancellationTokenSource.Token);
                 var result = await httpProvider.ParseAsync<ServerResponse<TokenInfo>>(response);
 
-                // 保存cookie
-                SaveCookie(result.Data.CookieInfo);
-                SaveAuthorizeResult(result.Data);
-                QRCodeStatusChanged?.Invoke(this, new Tuple<QRCodeStatus, TokenInfo>(QRCodeStatus.Success, result.Data));
+                try
+                {
+                    // 保存cookie
+                    SaveCookie(result.Data.CookieInfo);
+                    SaveAuthorizeResult(result.Data);
+                    QRCodeStatusChanged?.Invoke(this, new Tuple<QRCodeStatus, TokenInfo>(QRCodeStatus.Success, result.Data));
+                }
+                catch (Exception ex)
+                {
+                    // 扫码已成功但本地保存失败：把真实原因暴露出去，不再静默显示「登录失败」
+                    LastQRCodeError = $"保存登录信息失败: {ex.GetType().Name}: {ex.Message}";
+                    QRCodeStatusChanged?.Invoke(this, new Tuple<QRCodeStatus, TokenInfo>(QRCodeStatus.Failed, null));
+                }
             }
             catch (ServiceException se)
             {
@@ -327,6 +336,8 @@ namespace Bili.SignIn.Uwp
 
                 if (se.Error != null)
                 {
+                    LastQRCodeError = $"服务端返回 {se.Error.Code}: {se.Error.Message}";
+
                     QRCodeStatus qrStatus = default;
                     if (se.Error.Code == 86039 || se.Error.Code == 86090)
                     {
@@ -342,6 +353,12 @@ namespace Bili.SignIn.Uwp
                     }
 
                     QRCodeStatusChanged?.Invoke(this, new Tuple<QRCodeStatus, TokenInfo>(qrStatus, null));
+                }
+                else
+                {
+                    // 没有业务错误码（多为响应解析失败），同样要给出可读原因
+                    LastQRCodeError = $"响应解析失败: {se.GetType().Name}: {se.Message}";
+                    QRCodeStatusChanged?.Invoke(this, new Tuple<QRCodeStatus, TokenInfo>(QRCodeStatus.Failed, null));
                 }
             }
         }

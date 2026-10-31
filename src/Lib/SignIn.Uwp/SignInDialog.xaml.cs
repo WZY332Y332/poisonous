@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -92,9 +92,19 @@ namespace Bili.SignIn.Uwp
                     Hide();
                     break;
                 case QRCodeStatus.Failed:
-                    ShowQRTip(LanguageNames.LoginFailed);
-                    _authorizeProvider.StopQRLoginListener();
-                    break;
+                    {
+                        // 把服务端返回码 / 异常原因一并显示，避免只显示一句无信息量的「登录失败」
+                        var resourceToolkit = Locator.Instance.GetService<IResourceToolkit>();
+                        var failTip = resourceToolkit.GetLocaleString(LanguageNames.LoginFailed);
+                        if (!string.IsNullOrEmpty(_authorizeProvider.LastQRCodeError))
+                        {
+                            failTip = $"{failTip}\n{_authorizeProvider.LastQRCodeError}";
+                        }
+
+                        ShowQRTip(failTip);
+                        _authorizeProvider.StopQRLoginListener();
+                        break;
+                    }
                 default:
                     break;
             }
@@ -235,12 +245,16 @@ namespace Bili.SignIn.Uwp
         private void HideError()
             => ErrorBlock.Visibility = Visibility.Collapsed;
 
+        private void ShowQRTip(string msg)
+        {
+            QRMaskContainer.Visibility = Visibility.Visible;
+            QRTipBlock.Text = msg;
+        }
+
         private void ShowQRTip(LanguageNames name)
         {
             var resourceToolkit = Locator.Instance.GetService<IResourceToolkit>();
-            var msg = resourceToolkit.GetLocaleString(name);
-            QRMaskContainer.Visibility = Visibility.Visible;
-            QRTipBlock.Text = msg;
+            ShowQRTip(resourceToolkit.GetLocaleString(name));
         }
 
         private void HideQRTip()

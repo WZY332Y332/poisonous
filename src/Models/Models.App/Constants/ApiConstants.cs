@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 namespace Bili.Models.App.Constants
 {
@@ -51,12 +51,18 @@ namespace Bili.Models.App.Constants
             /// <summary>
             /// 获取登录二维码.
             /// </summary>
-            public const string QRCode = _passSnmBase + "/x/passport-tv-login/qrcode/auth_code";
+            /// <remarks>
+            /// 原来走 _passSnmBase（passport.snm0516.aisee.tv，B 站 TV 端旧镜像域）。
+            /// 在该域签发 auth_code 并在同域轮询时，手机确认后返回的不是 code=0，
+            /// 客户端因此落到「登录失败」。实测 passport.bilibili.com 同接口可完整返回
+            /// 86039 -> 86090 -> code 0（含 access_token 与 cookie_info），故改用正式域。
+            /// </remarks>
+            public const string QRCode = _passBase + "/x/passport-tv-login/qrcode/auth_code";
 
             /// <summary>
             /// 登录二维码轮询状态.
             /// </summary>
-            public const string QRCodeCheck = _passSnmBase + "/x/passport-tv-login/qrcode/poll";
+            public const string QRCodeCheck = _passBase + "/x/passport-tv-login/qrcode/poll";
 
             /// <summary>
             /// cookie转访问令牌.

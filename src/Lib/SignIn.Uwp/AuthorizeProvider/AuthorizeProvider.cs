@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -63,6 +63,11 @@ namespace Bili.SignIn.Uwp
 
         /// <inheritdoc/>
         public string CurrentUserId { get; private set; }
+
+        /// <summary>
+        /// 最近一次二维码登录失败的原因（服务端错误码 / 异常信息），用于界面诊断。
+        /// </summary>
+        public string LastQRCodeError { get; private set; }
 
         /// <inheritdoc/>
         public async Task<Dictionary<string, string>> GenerateAuthorizedQueryDictionaryAsync(
