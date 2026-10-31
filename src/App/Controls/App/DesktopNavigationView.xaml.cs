@@ -1,4 +1,4 @@
-﻿// Copyright (c) Richasy. All rights reserved.
+// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.ComponentModel;
@@ -61,7 +61,15 @@ namespace Bili.App.Controls.App
             else
             {
                 var pageId = NavigationExtension.GetPageId(args.InvokedItemContainer);
-                ViewModel.Navigate(pageId);
+                if (pageId == PageIds.Favorite)
+                {
+                    // 收藏夹沿用既有浮层视图（FavoritePage），避免重复实现页面
+                    ViewModel.NavigateToSecondaryView(PageIds.Favorite);
+                }
+                else
+                {
+                    ViewModel.Navigate(pageId);
+                }
             }
         }
 

@@ -1,4 +1,4 @@
-﻿<base:NavigationViewBase
+<base:NavigationViewBase
     x:Class="Bili.App.Controls.App.DesktopNavigationView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -81,6 +81,11 @@
                 <muxc:NavigationViewItem ext:NavigationExtension.PageId="Dynamic" Content="{loc:Locale Name=DynamicFeed}">
                     <muxc:NavigationViewItem.Icon>
                         <icons:RegularFluentIcon Symbol="DesignIdeas16" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem ext:NavigationExtension.PageId="Favorite" Content="收藏夹">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Favorite" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
                 <muxc:NavigationViewItemSeparator />
