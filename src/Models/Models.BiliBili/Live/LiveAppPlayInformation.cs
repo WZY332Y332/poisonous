@@ -65,7 +65,7 @@ namespace Bili.Models.BiliBili
         /// 直播间Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "cid", Required = Required.Default)]
-        public int Cid { get; set; }
+        public long Cid { get; set; }
 
         /// <summary>
         /// 清晰度列表.

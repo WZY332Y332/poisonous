@@ -90,7 +90,7 @@ namespace Bili.Models.BiliBili
             /// 分P Id.
             /// </summary>
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "cid", Required = Required.Default)]
-            public int Cid { get; set; }
+            public long Cid { get; set; }
 
             /// <summary>
             /// 短链接.

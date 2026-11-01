@@ -306,7 +306,7 @@ namespace Bili.Models.BiliBili
         /// 视频Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "aid", Required = Required.Default)]
-        public int Aid { get; set; }
+        public long Aid { get; set; }
 
         /// <summary>
         /// BV Id.
@@ -318,7 +318,7 @@ namespace Bili.Models.BiliBili
         /// 分P Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "cid", Required = Required.Default)]
-        public int PartId { get; set; }
+        public long PartId { get; set; }
 
         /// <summary>
         /// 封面.

@@ -78,7 +78,7 @@ namespace Bili.Models.BiliBili
         /// 对应分P Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "cid", Required = Required.Default)]
-        public int PartId { get; set; }
+        public long PartId { get; set; }
 
         /// <summary>
         /// 选项.

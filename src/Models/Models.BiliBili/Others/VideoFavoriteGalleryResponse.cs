@@ -272,7 +272,7 @@ namespace Bili.Models.BiliBili
         /// 首个分P Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "first_cid", Required = Required.Default)]
-        public int FirstCid { get; set; }
+        public long FirstCid { get; set; }
     }
 
     /// <summary>

@@ -77,7 +77,7 @@ namespace Bili.Models.BiliBili
         /// 分集Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "aid", Required = Required.Default)]
-        public int Aid { get; set; }
+        public long Aid { get; set; }
 
         /// <summary>
         /// 徽章内容.
@@ -95,7 +95,7 @@ namespace Bili.Models.BiliBili
         /// 不明.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "cid", Required = Required.Default)]
-        public int Cid { get; set; }
+        public long Cid { get; set; }
 
         /// <summary>
         /// 封面.
