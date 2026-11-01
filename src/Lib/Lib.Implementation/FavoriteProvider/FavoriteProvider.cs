@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Bili.Adapter.Interfaces;
 using Bili.Lib.Interfaces;
+using Bili.Models.App.Other;
 using Bili.Models.BiliBili;
 using Bili.Models.Data.Article;
 using Bili.Models.Data.Pgc;
@@ -70,7 +71,9 @@ namespace Bili.Lib
 
             var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteGallery, queryParameters, Models.Enums.RequestClientType.IOS, needToken: false, forceNoToken: true);
             var response = await _httpProvider.SendAsync(request);
-            var result = await _httpProvider.ParseAsync<ServerResponse<VideoFavoriteGalleryResponse>>(response);
+            var raw = await response.Content.ReadAsStringAsync();
+            AppLogger.Info("Favorite", $"gallery 原始响应: 长度={raw.Length}, 含default_folder={raw.Contains("default_folder")}, 含space_infos={raw.Contains("space_infos")}, 片段={raw.Substring(0, System.Math.Min(180, raw.Length))}");
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<ServerResponse<VideoFavoriteGalleryResponse>>(raw);
             _videoCollectFolderPageNumber = 1;
             _videoCreatedFolderPageNumber = 1;
             return _favoriteAdapter.ConvertToVideoFavoriteView(result.Data);

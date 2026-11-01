@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bili.Adapter.Interfaces;
+using Bili.Models.App.Other;
 using Bili.Models.BiliBili;
 using Bili.Models.Data.Video;
 using Bili.Toolkit.Interfaces;
@@ -68,6 +69,8 @@ namespace Bili.Adapter
         /// <inheritdoc/>
         public VideoFavoriteFolderDetail ConvertToVideoFavoriteFolderDetail(VideoFavoriteListResponse response)
         {
+            AppLogger.Info("Favorite", $"adapter: response={(response == null ? "null" : "有")}, detail={(response?.Detail == null ? "null" : "有")}, info={(response?.Information == null ? "null" : "有")}, medias={response?.Medias?.Count.ToString() ?? "null"}");
+
             // default_folder 只在自己主页的数据里才有；登录态未就绪时可能为空，这里必须防空
             if (response == null)
             {
