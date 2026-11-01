@@ -13,7 +13,7 @@ namespace Bili.Models.BiliBili
         /// 视频的Aid.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "aid", Required = Required.Default)]
-        public int Aid { get; set; }
+        public long Aid { get; set; }
 
         /// <summary>
         /// 视频播放数.
