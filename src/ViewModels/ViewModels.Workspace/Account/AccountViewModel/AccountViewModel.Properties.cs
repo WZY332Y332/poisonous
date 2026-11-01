@@ -109,7 +109,7 @@ namespace Bili.ViewModels.Workspace.Account
         /// <summary>
         /// 登录用户Id.
         /// </summary>
-        public int? Mid => Convert.ToInt32(AccountInformation?.User.Id);
+        public long? Mid => Convert.ToInt64(AccountInformation?.User.Id);
 
         /// <summary>
         /// 固定条目集合.

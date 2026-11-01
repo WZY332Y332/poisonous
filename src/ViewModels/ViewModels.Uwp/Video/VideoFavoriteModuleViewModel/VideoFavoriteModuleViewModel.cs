@@ -2,6 +2,7 @@
 
 using System.Threading.Tasks;
 using Bili.DI.Container;
+using Bili.Models.App.Other;
 using Bili.Lib.Interfaces;
 using Bili.ViewModels.Interfaces.Core;
 using Bili.ViewModels.Interfaces.Video;
@@ -40,16 +41,16 @@ namespace Bili.ViewModels.Uwp.Video
         protected override async Task GetDataAsync()
         {
             var data = await _favoriteProvider.GetVideoFavoriteViewAsync(_accountProvider.UserId.ToString());
-            if (data?.DefaultFolder == null)
+            AppLogger.Info("Favorite", $"收藏夹数据: mid={_accountProvider.UserId}, 默认夹={(data?.DefaultFolder == null ? "null" : "有")}, 分组数={data?.Groups?.Count() ?? 0}");
+
+            // 默认收藏夹可能为空（接口未返回），但不能因此跳过下面的分组
+            DefaultFolder = data?.DefaultFolder?.Folder;
+            IsDefaultFolderEmpty = data?.DefaultFolder == null || data.DefaultFolder.VideoSet.TotalCount == 0;
+
+            if (data?.Groups == null)
             {
-                // 默认收藏夹为空或账号信息尚未就绪，不应让整页崩溃
-                DefaultFolder = null;
-                IsDefaultFolderEmpty = true;
                 return;
             }
-
-            DefaultFolder = data.DefaultFolder.Folder;
-            IsDefaultFolderEmpty = data.DefaultFolder.VideoSet.TotalCount == 0;
 
             foreach (var item in data.Groups)
             {

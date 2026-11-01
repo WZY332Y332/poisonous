@@ -23,7 +23,7 @@ namespace Bili.ViewModels.Interfaces.Account
         /// <summary>
         /// 登录用户Id.
         /// </summary>
-        int? Mid { get; }
+        long? Mid { get; }
 
         /// <summary>
         /// 固定条目集合.
