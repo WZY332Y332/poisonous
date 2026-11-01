@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Richasy. All rights reserved.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Bili.DI.Container;
-using Bili.Models.App.Other;
 using Bili.Lib.Interfaces;
+using Bili.Models.App.Other;
 using Bili.ViewModels.Interfaces.Core;
 using Bili.ViewModels.Interfaces.Video;
 using Bili.ViewModels.Uwp.Base;
