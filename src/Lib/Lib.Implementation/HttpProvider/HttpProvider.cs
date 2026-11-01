@@ -1,4 +1,4 @@
-// Copyright (c) Richasy. All rights reserved.
+﻿// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -78,15 +78,29 @@ namespace Bili.Lib
 
             if (method == HttpMethod.Get && needCookie)
             {
+                // 纯 Web 请求：只带业务参数 + Cookie，不附加 appkey/sign/mobi_app，
+                // 否则部分接口（收藏夹等）会返回残缺的 App 变体数据。
+                var parts = new List<string>();
                 if (needAppKey)
                 {
-                    var query = _authenticationProvider.GenerateAuthorizedQueryStringFirstSign(queryParams, clientType);
-                    url += $"?{query}";
+                    parts.Add(_authenticationProvider.GenerateAuthorizedQueryStringFirstSign(queryParams, clientType));
+                }
+                else if (queryParams != null)
+                {
+                    foreach (var pair in queryParams)
+                    {
+                        parts.Add($"{pair.Key}={Uri.EscapeDataString(pair.Value ?? string.Empty)}");
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(additionalQuery))
                 {
-                    url += $"&{additionalQuery}";
+                    parts.Add(additionalQuery);
+                }
+
+                if (parts.Count > 0)
+                {
+                    url += (url.Contains("?") ? "&" : "?") + string.Join("&", parts);
                 }
 
                 requestMessage = new HttpRequestMessage(method, url);

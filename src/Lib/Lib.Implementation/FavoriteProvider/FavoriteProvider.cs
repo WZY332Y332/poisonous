@@ -69,7 +69,7 @@ namespace Bili.Lib
                 { Query.UpId, userId.ToString() },
             };
 
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteGallery, queryParameters, Models.Enums.RequestClientType.IOS, needToken: false, forceNoToken: true);
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteGallery, queryParameters, needCookie: true);
             var response = await _httpProvider.SendAsync(request);
             var raw = await response.Content.ReadAsStringAsync();
             AppLogger.Info("Favorite", $"gallery 原始响应: 长度={raw.Length}, 含default_folder={raw.Contains("default_folder")}, 含space_infos={raw.Contains("space_infos")}, 片段={raw.Substring(0, System.Math.Min(180, raw.Length))}");
@@ -89,7 +89,7 @@ namespace Bili.Lib
                 { Query.PageNumber, _videoFolderDetailPageNumber.ToString() },
             };
 
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteDelta, queryParameters, Models.Enums.RequestClientType.IOS, needToken: false, forceNoToken: true);
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteDelta, queryParameters, needCookie: true);
             var response = await _httpProvider.SendAsync(request);
             var result = await _httpProvider.ParseAsync<ServerResponse<VideoFavoriteListResponse>>(response);
             _videoFolderDetailPageNumber++;
@@ -108,7 +108,7 @@ namespace Bili.Lib
             };
 
             var url = isCreated ? Account.CreatedVideoFavoriteFolderDelta : Account.CollectedVideoFavoriteFolderDelta;
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, url, queryParameters, needToken: true);
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, url, queryParameters, needCookie: true);
             var response = await _httpProvider.SendAsync(request);
             var result = await _httpProvider.ParseAsync<ServerResponse<FavoriteMediaList>>(response);
             if (isCreated)

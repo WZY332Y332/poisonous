@@ -209,7 +209,7 @@ namespace Bili.Lib
                 { Query.PageNumber, _viewLaterPageNumber.ToString() },
                 { Query.PageSizeSlim, "40" },
             };
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.ViewLaterList, queryParameters, Models.Enums.RequestClientType.IOS, needToken: false, forceNoToken: true);
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.ViewLaterList, queryParameters, needCookie: true);
             var response = await _httpProvider.SendAsync(request);
             var result = await _httpProvider.ParseAsync<ServerResponse<ViewLaterResponse>>(response);
             _viewLaterPageNumber++;
