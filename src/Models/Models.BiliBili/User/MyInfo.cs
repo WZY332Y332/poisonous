@@ -14,7 +14,7 @@ namespace Bili.Models.BiliBili
         /// 用户ID.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "mid", Required = Required.Default)]
-        public int Mid { get; set; }
+        public long Mid { get; set; }
 
         /// <summary>
         /// 用户名.

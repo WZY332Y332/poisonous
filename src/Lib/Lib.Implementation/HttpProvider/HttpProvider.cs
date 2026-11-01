@@ -103,6 +103,17 @@ namespace Bili.Lib
 
                 url += $"?{query}";
                 requestMessage = new HttpRequestMessage(method, url);
+
+                // Web 接口（api.bilibili.com 等）走 Cookie 鉴权：带上缓存 Cookie，
+                // 否则收藏夹、稍后再看这类接口会被当成未登录。登录类接口不加。
+                if (!url.Contains("passport.bilibili.com"))
+                {
+                    var cookieString = _authenticationProvider.GetCookieString();
+                    if (!string.IsNullOrEmpty(cookieString))
+                    {
+                        requestMessage.Headers.Add("Cookie", cookieString);
+                    }
+                }
             }
             else
             {
