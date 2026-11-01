@@ -505,7 +505,6 @@ namespace Bili.SignIn.Uwp
                 _cookieOnlyMode = true;
                 _cookieString = localSettings.Values[CookieStringKey] as string;
                 CurrentUserId = cookieOnlyMid.ToString();
-                Locator.Instance.GetService<IAccountProvider>().UserId = Convert.ToInt64(cookieOnlyMid);
                 _tokenInfo = null;
                 _lastAuthorizeTime = DateTimeOffset.Now;
                 State = AuthorizeState.SignedIn;
@@ -525,7 +524,6 @@ namespace Bili.SignIn.Uwp
                 };
 
                 CurrentUserId = tokenInfo.Mid.ToString();
-                Locator.Instance.GetService<IAccountProvider>().UserId = tokenInfo.Mid;
                 _tokenInfo = tokenInfo;
                 _lastAuthorizeTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(data[Settings.LastSaveAuthTimeKey]));
                 State = AuthorizeState.SignedIn;

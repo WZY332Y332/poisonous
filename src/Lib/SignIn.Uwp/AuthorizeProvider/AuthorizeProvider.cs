@@ -1,4 +1,4 @@
-// Copyright (c) Richasy. All rights reserved.
+﻿// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -36,6 +36,23 @@ namespace Bili.SignIn.Uwp
             RetrieveAuthorizeResult();
             _guid = Guid.NewGuid().ToString("N");
             _isXbox = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox";
+
+            // 延迟同步 UserId：构造函数里直接解析 IAccountProvider 会造成循环依赖
+            var restoredUserId = CurrentUserId;
+            if (!string.IsNullOrEmpty(restoredUserId))
+            {
+                _ = System.Threading.Tasks.Task.Run(() =>
+                {
+                    try
+                    {
+                        Locator.Instance.GetService<IAccountProvider>().UserId = Convert.ToInt64(restoredUserId);
+                    }
+                    catch
+                    {
+                        // 忽略同步失败
+                    }
+                });
+            }
 
             // 仅 Cookie 模式：后台校验 Cookie 是否仍有效，失效则自动登出
             if (_cookieOnlyMode)
