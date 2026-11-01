@@ -68,7 +68,19 @@ namespace Bili.Adapter
         /// <inheritdoc/>
         public VideoFavoriteFolderDetail ConvertToVideoFavoriteFolderDetail(VideoFavoriteListResponse response)
         {
-            var folder = ConvertToVideoFavoriteFolder(response.Detail ?? response.Information);
+            // default_folder 只在自己主页的数据里才有；登录态未就绪时可能为空，这里必须防空
+            if (response == null)
+            {
+                return null;
+            }
+
+            var detail = response.Detail ?? response.Information;
+            if (detail == null)
+            {
+                return null;
+            }
+
+            var folder = ConvertToVideoFavoriteFolder(detail);
             var videos = response.Medias?.Select(p => _videoAdapter.ConvertToVideoInformation(p)) ?? new List<VideoInformation>();
             var videoSet = new VideoSet(videos, folder.TotalCount);
             return new VideoFavoriteFolderDetail(folder, videoSet);

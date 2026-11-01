@@ -40,6 +40,14 @@ namespace Bili.ViewModels.Uwp.Video
         protected override async Task GetDataAsync()
         {
             var data = await _favoriteProvider.GetVideoFavoriteViewAsync(_accountProvider.UserId.ToString());
+            if (data?.DefaultFolder == null)
+            {
+                // 默认收藏夹为空或账号信息尚未就绪，不应让整页崩溃
+                DefaultFolder = null;
+                IsDefaultFolderEmpty = true;
+                return;
+            }
+
             DefaultFolder = data.DefaultFolder.Folder;
             IsDefaultFolderEmpty = data.DefaultFolder.VideoSet.TotalCount == 0;
 

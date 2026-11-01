@@ -14,7 +14,7 @@ namespace Bili.Models.BiliBili
         /// 视频标识符.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "aid", Required = Required.Default)]
-        public int VideoId { get; set; }
+        public long VideoId { get; set; }
 
         /// <summary>
         /// 稿件分P总数.
@@ -92,7 +92,7 @@ namespace Bili.Models.BiliBili
         /// 分P Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "cid", Required = Required.Default)]
-        public int PartId { get; set; }
+        public long PartId { get; set; }
 
         /// <summary>
         /// 播放进度.
@@ -116,6 +116,6 @@ namespace Bili.Models.BiliBili
         /// 剧集Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "season_id", Required = Required.Default)]
-        public int SeasonId { get; set; }
+        public long SeasonId { get; set; }
     }
 }

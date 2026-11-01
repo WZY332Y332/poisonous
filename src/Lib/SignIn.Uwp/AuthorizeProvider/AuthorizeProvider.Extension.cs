@@ -1,4 +1,4 @@
-// Copyright (c) Richasy. All rights reserved.
+﻿// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.Collections.Generic;
@@ -485,6 +485,7 @@ namespace Bili.SignIn.Uwp
                 };
 
                 CurrentUserId = result.Mid.ToString();
+                Locator.Instance.GetService<IAccountProvider>().UserId = result.Mid;
                 ApplicationData.Current.LocalSettings.Values[Settings.AuthResultKey] = compositeValue;
                 _lastAuthorizeTime = saveTime;
                 _tokenInfo = result;
@@ -504,6 +505,7 @@ namespace Bili.SignIn.Uwp
                 _cookieOnlyMode = true;
                 _cookieString = localSettings.Values[CookieStringKey] as string;
                 CurrentUserId = cookieOnlyMid.ToString();
+                Locator.Instance.GetService<IAccountProvider>().UserId = Convert.ToInt64(cookieOnlyMid);
                 _tokenInfo = null;
                 _lastAuthorizeTime = DateTimeOffset.Now;
                 State = AuthorizeState.SignedIn;
@@ -523,6 +525,7 @@ namespace Bili.SignIn.Uwp
                 };
 
                 CurrentUserId = tokenInfo.Mid.ToString();
+                Locator.Instance.GetService<IAccountProvider>().UserId = tokenInfo.Mid;
                 _tokenInfo = tokenInfo;
                 _lastAuthorizeTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(data[Settings.LastSaveAuthTimeKey]));
                 State = AuthorizeState.SignedIn;
@@ -597,6 +600,7 @@ namespace Bili.SignIn.Uwp
 
             _cookieOnlyMode = true;
             CurrentUserId = mid.ToString();
+            Locator.Instance.GetService<IAccountProvider>().UserId = mid;
             _tokenInfo = null;
             _lastAuthorizeTime = DateTimeOffset.Now;
             ApplicationData.Current.LocalSettings.Values[CookieOnlyMidKey] = mid;
