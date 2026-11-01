@@ -49,7 +49,7 @@ namespace Bili.Lib
                 { Query.PartitionId, videoId.ToString() },
             };
 
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.FavoriteList, queryParameters, needToken: true);
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.FavoriteList, queryParameters, needToken: false, forceNoToken: true);
             var response = await _httpProvider.SendAsync(request);
             var result = await _httpProvider.ParseAsync<ServerResponse<FavoriteListResponse>>(response);
             var data = result.Data;
@@ -68,7 +68,7 @@ namespace Bili.Lib
                 { Query.UpId, userId.ToString() },
             };
 
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteGallery, queryParameters, Models.Enums.RequestClientType.IOS, needToken: true);
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteGallery, queryParameters, Models.Enums.RequestClientType.IOS, needToken: false, forceNoToken: true);
             var response = await _httpProvider.SendAsync(request);
             var result = await _httpProvider.ParseAsync<ServerResponse<VideoFavoriteGalleryResponse>>(response);
             _videoCollectFolderPageNumber = 1;
@@ -86,7 +86,7 @@ namespace Bili.Lib
                 { Query.PageNumber, _videoFolderDetailPageNumber.ToString() },
             };
 
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteDelta, queryParameters, Models.Enums.RequestClientType.IOS, needToken: true);
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.VideoFavoriteDelta, queryParameters, Models.Enums.RequestClientType.IOS, needToken: false, forceNoToken: true);
             var response = await _httpProvider.SendAsync(request);
             var result = await _httpProvider.ParseAsync<ServerResponse<VideoFavoriteListResponse>>(response);
             _videoFolderDetailPageNumber++;
