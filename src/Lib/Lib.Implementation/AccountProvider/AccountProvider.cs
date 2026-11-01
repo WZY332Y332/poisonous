@@ -49,7 +49,7 @@ namespace Bili.Lib
         }
 
         /// <inheritdoc/>
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
         /// <inheritdoc/>
         public async Task<AccountInformation> GetMyInformationAsync()
