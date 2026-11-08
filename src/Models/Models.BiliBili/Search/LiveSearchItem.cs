@@ -19,7 +19,7 @@ namespace Bili.Models.BiliBili
         /// 直播间Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "roomid", Required = Required.Default)]
-        public int RoomId { get; set; }
+        public long RoomId { get; set; }
 
         /// <summary>
         /// 用户Id.

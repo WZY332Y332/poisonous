@@ -119,7 +119,7 @@ namespace Bili.Models.BiliBili
         /// 所属动漫或影视剧的Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "oid", Required = Required.Default)]
-        public int OriginId { get; set; }
+        public long OriginId { get; set; }
 
         /// <summary>
         /// 剧集的季Id.

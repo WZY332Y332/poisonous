@@ -82,7 +82,7 @@ namespace Bili.Models.BiliBili
         /// 发布者名称.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "up_mid", Required = Required.Default)]
-        public int PublisherId { get; set; }
+        public long PublisherId { get; set; }
 
         /// <summary>
         /// 徽章文本.

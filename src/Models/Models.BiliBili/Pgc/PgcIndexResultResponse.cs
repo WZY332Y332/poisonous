@@ -82,7 +82,7 @@ namespace Bili.Models.BiliBili
         /// 媒体Id.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore, PropertyName = "media_id", Required = Required.Default)]
-        public int MediaId { get; set; }
+        public long MediaId { get; set; }
 
         /// <summary>
         /// 剧集Id.
