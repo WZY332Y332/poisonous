@@ -57,7 +57,7 @@ namespace Bili.Lib.Interfaces
         Task<MediaInformation> GetVideoMediaInformationAsync(string videoId, string partId);
 
         /// <summary>
-        /// 获取视频下载直链（单文件，durl）. 
+        /// 获取视频下载直链（单文件，durl）.
         /// </summary>
         /// <param name="aid">视频 avid.</param>
         /// <param name="cid">分 P 的 cid.</param>
