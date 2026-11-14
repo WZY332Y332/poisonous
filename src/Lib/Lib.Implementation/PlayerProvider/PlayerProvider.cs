@@ -143,14 +143,15 @@ namespace Bili.Lib
             {
                 foreach (var item in result.Data.FlvInformation)
                 {
+                    if (item.BackupUrls != null)
+                    {
+                        // 备用链通常是标准 CDN，优先使用；主链常常是 PCDN
+                        urls.AddRange(item.BackupUrls.Where(p => !string.IsNullOrEmpty(p)));
+                    }
+
                     if (!string.IsNullOrEmpty(item.Url))
                     {
                         urls.Add(item.Url);
-                    }
-
-                    if (item.BackupUrls != null)
-                    {
-                        urls.AddRange(item.BackupUrls.Where(p => !string.IsNullOrEmpty(p)));
                     }
                 }
             }

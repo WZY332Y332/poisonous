@@ -19,6 +19,7 @@ namespace Bili.App.Pages.Desktop.Overlay
         {
             InitializeComponent();
             ViewModel = Locator.Instance.GetService<IDownloadPageViewModel>();
+            DataContext = ViewModel;
         }
 
         /// <summary>
