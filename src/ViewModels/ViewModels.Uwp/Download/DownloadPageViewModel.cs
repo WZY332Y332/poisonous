@@ -91,6 +91,8 @@ namespace Bili.ViewModels.Uwp.Download
     /// </summary>
     public sealed partial class DownloadPageViewModel : ViewModelBase, IDownloadPageViewModel
     {
+        private static Windows.UI.Core.CoreDispatcher _uiDispatcher;
+
         private static readonly HttpClient HttpClientInstance = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
 
         private readonly IPlayerProvider _playerProvider;
@@ -155,6 +157,11 @@ namespace Bili.ViewModels.Uwp.Download
                 return;
             }
 
+            if (_uiDispatcher == null)
+            {
+                _uiDispatcher = Windows.ApplicationModel.Core.CoreApplication.MainView?.CoreWindow?.Dispatcher;
+            }
+
             var item = new DownloadTaskViewModel(title, videoId, partId, quality);
             Items.Insert(0, item);
             UpdateUi(() => IsEmpty = false);
@@ -163,7 +170,7 @@ namespace Bili.ViewModels.Uwp.Download
 
         private static void UpdateUi(Action action)
         {
-            var dispatcher = Windows.ApplicationModel.Core.CoreApplication.MainView?.CoreWindow?.Dispatcher;
+            var dispatcher = _uiDispatcher;
             if (dispatcher == null || dispatcher.HasThreadAccess)
             {
                 action();
