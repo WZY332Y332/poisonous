@@ -138,10 +138,24 @@ namespace Bili.Lib
             var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Video.PlayInformation, queryParameters, RequestClientType.IOS, needToken: true);
             var response = await _httpProvider.SendAsync(request);
             var result = await _httpProvider.ParseAsync<ServerResponse<PlayerInformation>>(response);
-            return result.Data?.FlvInformation?
-                .Select(p => p.Url)
-                .Where(p => !string.IsNullOrEmpty(p))
-                .ToList() ?? new List<string>();
+            var urls = new List<string>();
+            if (result.Data?.FlvInformation != null)
+            {
+                foreach (var item in result.Data.FlvInformation)
+                {
+                    if (!string.IsNullOrEmpty(item.Url))
+                    {
+                        urls.Add(item.Url);
+                    }
+
+                    if (item.BackupUrls != null)
+                    {
+                        urls.AddRange(item.BackupUrls.Where(p => !string.IsNullOrEmpty(p)));
+                    }
+                }
+            }
+
+            return urls;
         }
 
         public async Task<MediaInformation> GetVideoMediaInformationAsync(string videoId, string partId)

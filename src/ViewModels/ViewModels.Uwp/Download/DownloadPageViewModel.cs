@@ -222,36 +222,56 @@ namespace Bili.ViewModels.Uwp.Download
                 var file = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
                 item.FilePath = file.Path;
 
-                long totalRead = 0;
-                long totalLength = 0;
+                var isSuccess = false;
+                Exception lastError = null;
 
                 foreach (var url in urls)
                 {
-                    using (var response = await HttpClientInstance.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, item.Cancellation.Token))
+                    item.StatusText = "连接中…";
+                    try
                     {
-                        response.EnsureSuccessStatusCode();
-                        var length = response.Content.Headers.ContentLength ?? 0;
-                        totalLength += length;
-
-                        using (var stream = await response.Content.ReadAsStreamAsync())
+                        using (var response = await HttpClientInstance.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, item.Cancellation.Token))
                         {
-                            using (var fileStream = new FileStream(file.Path, totalRead == 0 ? FileMode.Create : FileMode.Append, FileAccess.Write, FileShare.None, 81920, true))
+                            response.EnsureSuccessStatusCode();
+                            var totalLength = response.Content.Headers.ContentLength ?? 0;
+                            long totalRead = 0;
+
+                            using (var stream = await response.Content.ReadAsStreamAsync())
                             {
-                                var buffer = new byte[81920];
-                                int read;
-                                while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, item.Cancellation.Token)) > 0)
+                                using (var fileStream = new FileStream(file.Path, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true))
                                 {
-                                    await fileStream.WriteAsync(buffer, 0, read, item.Cancellation.Token);
-                                    totalRead += read;
-                                    item.StatusText = string.Format("下载中 {0:0.0} MB", totalRead / 1024d / 1024d);
-                                    if (totalLength > 0)
+                                    var buffer = new byte[81920];
+                                    int read;
+                                    while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, item.Cancellation.Token)) > 0)
                                     {
-                                        item.Progress = Math.Min(99, totalRead * 100d / totalLength);
+                                        await fileStream.WriteAsync(buffer, 0, read, item.Cancellation.Token);
+                                        totalRead += read;
+                                        item.StatusText = string.Format("下载中 {0:0.0} MB", totalRead / 1024d / 1024d);
+                                        if (totalLength > 0)
+                                        {
+                                            item.Progress = Math.Min(99, totalRead * 100d / totalLength);
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        isSuccess = true;
+                        break;
                     }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        lastError = ex;
+                    }
+                }
+
+                if (!isSuccess)
+                {
+                    throw lastError ?? new InvalidOperationException("所有下载地址均不可用");
                 }
 
                 item.Progress = 100;
