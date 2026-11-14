@@ -131,6 +131,7 @@ namespace Bili.Models.Enums
         /// 我的关注.
         /// </summary>
         MyFollows = 107,
+        MySpace = 108,
 
         /// <summary>
         /// 分区详情页面.

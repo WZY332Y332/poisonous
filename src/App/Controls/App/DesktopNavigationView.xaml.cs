@@ -1,4 +1,4 @@
-// Copyright (c) Richasy. All rights reserved.
+﻿// Copyright (c) Richasy. All rights reserved.
 
 using System;
 using System.ComponentModel;
@@ -61,9 +61,15 @@ namespace Bili.App.Controls.App
             else
             {
                 var pageId = NavigationExtension.GetPageId(args.InvokedItemContainer);
-                if (pageId == PageIds.Favorite || pageId == PageIds.ViewLater || pageId == PageIds.ViewHistory)
+                if (pageId == PageIds.Favorite
+                    || pageId == PageIds.ViewLater
+                    || pageId == PageIds.ViewHistory
+                    || pageId == PageIds.Message
+                    || pageId == PageIds.MyFollows
+                    || pageId == PageIds.Fans
+                    || pageId == PageIds.MySpace)
                 {
-                    // 这三个视图都需要登录态：未登录时先引导登录，成功后再打开
+                    // 这些视图都需要登录态：未登录时先引导登录，成功后再打开
                     if (AccountViewModel.State != AuthorizeState.SignedIn)
                     {
                         await AccountViewModel.TrySignInCommand.ExecuteAsync(false);
@@ -71,8 +77,20 @@ namespace Bili.App.Controls.App
 
                     if (AccountViewModel.State == AuthorizeState.SignedIn)
                     {
-                        // 沿用既有的浮层视图，避免重复实现页面
-                        ViewModel.NavigateToSecondaryView(pageId);
+                        if (pageId == PageIds.MySpace)
+                        {
+                            // 个人主页需要传入用户对象，复用既有的用户空间页
+                            var currentUser = AccountViewModel.AccountInformation?.User;
+                            if (currentUser != null)
+                            {
+                                ViewModel.NavigateToSecondaryView(PageIds.UserSpace, currentUser);
+                            }
+                        }
+                        else
+                        {
+                            // 沿用既有的浮层视图，避免重复实现页面
+                            ViewModel.NavigateToSecondaryView(pageId);
+                        }
                     }
                 }
                 else
