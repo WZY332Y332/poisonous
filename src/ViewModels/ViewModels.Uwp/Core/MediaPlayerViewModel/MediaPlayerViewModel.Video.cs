@@ -229,5 +229,16 @@ namespace Bili.ViewModels.Uwp.Core
             var part = view.SubVideos.FirstOrDefault();
             ChangePartCommand.ExecuteAsync(part);
         }
+
+        private async Task DownloadAsync()
+        {
+            if (!(_viewData is VideoPlayerView view) || _currentPart == null)
+            {
+                return;
+            }
+
+            var downloader = Bili.DI.Container.Locator.Instance.GetService<Bili.ViewModels.Uwp.Download.DownloadPageViewModel>();
+            await downloader.EnqueueAsync(view.Information.Identifier.Id, _currentPart.Id, view.Information.Identifier.Title);
+        }
     }
 }

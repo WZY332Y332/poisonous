@@ -67,7 +67,8 @@ namespace Bili.App.Controls.App
                     || pageId == PageIds.Message
                     || pageId == PageIds.MyFollows
                     || pageId == PageIds.Fans
-                    || pageId == PageIds.MySpace)
+                    || pageId == PageIds.MySpace
+                    || pageId == PageIds.Download)
                 {
                     // 这些视图都需要登录态：未登录时先引导登录，成功后再打开
                     if (AccountViewModel.State != AuthorizeState.SignedIn)

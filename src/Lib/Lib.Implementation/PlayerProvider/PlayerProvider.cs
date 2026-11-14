@@ -122,6 +122,27 @@ namespace Bili.Lib
         }
 
         /// <inheritdoc/>
+        /// <inheritdoc/>
+        public async Task<IReadOnlyList<string>> GetVideoDownloadUrlsAsync(string aid, string cid, int quality)
+        {
+            var queryParameters = new Dictionary<string, string>
+            {
+                { Query.Fnver, "0" },
+                { Query.Cid, cid },
+                { Query.AVid, aid },
+                { Query.Fnval, "1" },
+                { Query.Qn, quality.ToString() },
+                { Query.OType, "json" },
+            };
+
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Video.PlayInformation, queryParameters, RequestClientType.IOS, needToken: true);
+            var response = await _httpProvider.SendAsync(request);
+            var result = await _httpProvider.ParseAsync<ServerResponse<PlayerInformation>>(response);
+            return result.Data?.FlvInformation?
+                .Select(p => p.Url)
+                .Where(p => !string.IsNullOrEmpty(p))
+                .ToList() ?? new List<string>();
+        }
         public async Task<MediaInformation> GetVideoMediaInformationAsync(string videoId, string partId)
             => await InternalGetDashAsync(partId, videoId);
 

@@ -270,6 +270,7 @@ namespace Bili.App.Pages.Desktop
                     ? typeof(Xbox.Overlay.FavoritePage)
                     : typeof(Desktop.Overlay.FavoritePage),
                 PageIds.ViewLater => typeof(ViewLaterPage),
+                PageIds.Download => typeof(DownloadPage),
                 PageIds.Fans => typeof(FansPage),
                 PageIds.Follows => typeof(FollowsPage),
                 PageIds.PgcIndex => typeof(PgcIndexPage),

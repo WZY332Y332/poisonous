@@ -90,6 +90,7 @@
     <Compile Include="Account\UserSpaceViewModel\UserSpaceViewModel.Properties.cs" />
     <Compile Include="Account\ViewLaterPageViewModel\ViewLaterPageViewModel.cs" />
     <Compile Include="Account\ViewLaterPageViewModel\ViewLaterPageViewModel.Properties.cs" />
+    <Compile Include="Download\DownloadPageViewModel.cs" />
     <Compile Include="Base\RelationPageViewModelBase\RelationPageViewModelBase.cs" />
     <Compile Include="Base\RelationPageViewModelBase\RelationPageViewModelBase.Properties.cs" />
     <Compile Include="Community\FansPageViewModel.cs" />

@@ -92,6 +92,7 @@ namespace Bili.ViewModels.Uwp.Core
             ToggleCompactOverlayCommand = new RelayCommand(ToggleCompactOverlayMode);
             ExitFullPlayerCommand = new RelayCommand(ExitFullPlayer);
             ScreenShotCommand = new AsyncRelayCommand(ScreenShotAsync);
+            DownloadCommand = new AsyncRelayCommand(DownloadAsync);
             ChangeProgressCommand = new RelayCommand<double>(ChangeProgress);
             StartTempQuickPlayCommand = new AsyncRelayCommand(StartTempQuickPlayAsync);
             StopTempQuickPlayCommand = new AsyncRelayCommand(StopTempQuickPlayAsync);

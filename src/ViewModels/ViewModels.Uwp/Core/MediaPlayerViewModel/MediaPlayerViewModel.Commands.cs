@@ -14,6 +14,11 @@ namespace Bili.ViewModels.Uwp.Core
         /// <inheritdoc/>
         public IAsyncRelayCommand ReloadCommand { get; }
 
+        /// <summary>
+        /// 下载当前视频的命令.
+        /// </summary>
+        public IAsyncRelayCommand DownloadCommand { get; }
+
         /// <inheritdoc/>
         public IAsyncRelayCommand<VideoIdentifier> ChangePartCommand { get; }
 

@@ -57,6 +57,15 @@ namespace Bili.Lib.Interfaces
         Task<MediaInformation> GetVideoMediaInformationAsync(string videoId, string partId);
 
         /// <summary>
+        /// 获取视频下载直链（单文件，durl）. 
+        /// </summary>
+        /// <param name="aid">视频 avid.</param>
+        /// <param name="cid">分 P 的 cid.</param>
+        /// <param name="quality">清晰度（qn），64 表示 720P.</param>
+        /// <returns>直链列表.</returns>
+        Task<IReadOnlyList<string>> GetVideoDownloadUrlsAsync(string aid, string cid, int quality);
+
+        /// <summary>
         /// 获取PGC的剧集Dash播放信息.
         /// </summary>
         /// <param name="partId">对应剧集的Cid.</param>

@@ -432,6 +432,9 @@
     <Compile Include="Pages\Desktop\Overlay\ViewLaterPage.xaml.cs">
       <DependentUpon>ViewLaterPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Desktop\Overlay\DownloadPage.xaml.cs">
+      <DependentUpon>DownloadPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\Desktop\SettingPage.xaml.cs">
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>
@@ -1162,6 +1165,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\Desktop\Overlay\ViewLaterPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Desktop\Overlay\DownloadPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

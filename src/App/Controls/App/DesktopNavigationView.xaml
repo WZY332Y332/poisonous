@@ -108,7 +108,11 @@
                         <SymbolIcon Symbol="ContactInfo" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem ext:NavigationExtension.PageId="Favorite" Content="收藏夹">
+                <muxc:NavigationViewItem ext:NavigationExtension.PageId="Download" Content="下载">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Download" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>                <muxc:NavigationViewItem ext:NavigationExtension.PageId="Favorite" Content="收藏夹">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="Favorite" />
                     </muxc:NavigationViewItem.Icon>
