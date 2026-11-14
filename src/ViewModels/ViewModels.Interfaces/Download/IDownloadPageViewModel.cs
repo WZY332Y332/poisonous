@@ -71,6 +71,21 @@ namespace Bili.ViewModels.Interfaces.Download
         /// <summary>
         /// 进度（0-100）.
         /// </summary>
+        /// <summary>
+        /// 视频 ID（aid）.
+        /// </summary>
+        string VideoId { get; }
+
+        /// <summary>
+        /// 分 P 的 cid.
+        /// </summary>
+        string PartId { get; }
+
+        /// <summary>
+        /// 清晰度（qn）.
+        /// </summary>
+        int Quality { get; }
+
         double Progress { get; set; }
 
         /// <summary>
