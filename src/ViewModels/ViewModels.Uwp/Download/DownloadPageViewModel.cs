@@ -83,8 +83,6 @@ namespace Bili.ViewModels.Uwp.Download
         /// 保存路径.
         /// </summary>
         public string FilePath { get; set; }
-
-
     }
 
     /// <summary>
@@ -162,6 +160,22 @@ namespace Bili.ViewModels.Uwp.Download
             await DownloadAsync(item);
         }
 
+        private string SanitizeFileName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return "video";
+            }
+
+            foreach (var c in Path.GetInvalidFileNameChars())
+            {
+                name = name.Replace(c, '_');
+            }
+
+            name = name.Trim();
+            return name.Length > 60 ? name.Substring(0, 60) : name;
+        }
+
         private async Task AddAsync()
         {
             var id = InputText;
@@ -184,21 +198,6 @@ namespace Bili.ViewModels.Uwp.Download
 
             var part = view.SubVideos?.FirstOrDefault();
             await EnqueueAsync(view.Information.Identifier.Id, part?.Id, view.Information.Identifier.Title);
-        }
-        private static string SanitizeFileName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return "video";
-            }
-
-            foreach (var c in Path.GetInvalidFileNameChars())
-            {
-                name = name.Replace(c, '_');
-            }
-
-            name = name.Trim();
-            return name.Length > 60 ? name.Substring(0, 60) : name;
         }
 
         private async Task DownloadAsync(DownloadTaskViewModel item)

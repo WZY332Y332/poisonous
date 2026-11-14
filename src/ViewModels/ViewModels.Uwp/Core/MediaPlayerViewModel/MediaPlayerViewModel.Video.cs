@@ -232,7 +232,7 @@ namespace Bili.ViewModels.Uwp.Core
 
         private async Task DownloadAsync()
         {
-            if (!(_viewData is VideoPlayerView view) || _currentPart == null)
+            if (!(_viewData is VideoPlayerView view) || string.IsNullOrEmpty(_currentPart.Id))
             {
                 return;
             }

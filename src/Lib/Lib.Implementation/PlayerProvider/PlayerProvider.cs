@@ -143,6 +143,7 @@ namespace Bili.Lib
                 .Where(p => !string.IsNullOrEmpty(p))
                 .ToList() ?? new List<string>();
         }
+
         public async Task<MediaInformation> GetVideoMediaInformationAsync(string videoId, string partId)
             => await InternalGetDashAsync(partId, videoId);
 
