@@ -91,7 +91,7 @@ namespace Bili.ViewModels.Uwp.Download
     /// </summary>
     public sealed partial class DownloadPageViewModel : ViewModelBase, IDownloadPageViewModel
     {
-        private static readonly HttpClient HttpClientInstance = new HttpClient();
+        private static readonly HttpClient HttpClientInstance = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
 
         private readonly IPlayerProvider _playerProvider;
 
@@ -230,7 +230,12 @@ namespace Bili.ViewModels.Uwp.Download
                     item.StatusText = "连接中…";
                     try
                     {
-                        using (var response = await HttpClientInstance.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, item.Cancellation.Token))
+                        using (var request = new HttpRequestMessage(HttpMethod.Get, url))
+                        {
+                            request.Headers.TryAddWithoutValidation("Referer", "https://www.bilibili.com");
+                            request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36");
+
+                            using (var response = await HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, item.Cancellation.Token))
                         {
                             response.EnsureSuccessStatusCode();
                             var totalLength = response.Content.Headers.ContentLength ?? 0;
@@ -254,6 +259,7 @@ namespace Bili.ViewModels.Uwp.Download
                                     }
                                 }
                             }
+                        }
                         }
 
                         isSuccess = true;
