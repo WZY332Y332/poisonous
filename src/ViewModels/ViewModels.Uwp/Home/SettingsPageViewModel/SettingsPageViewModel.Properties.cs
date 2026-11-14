@@ -44,6 +44,9 @@ namespace Bili.ViewModels.Uwp.Home
         private bool _isAutoPlayNextRelatedVideo;
 
         [ObservableProperty]
+        private double _skipIntroSeconds;
+
+        [ObservableProperty]
         private PlayerDisplayMode _defaultPlayerDisplayMode;
 
         [ObservableProperty]

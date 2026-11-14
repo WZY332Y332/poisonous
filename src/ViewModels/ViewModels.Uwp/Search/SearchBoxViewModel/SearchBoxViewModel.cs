@@ -10,6 +10,7 @@ using Bili.Models.Data.Search;
 using Bili.ViewModels.Interfaces.Core;
 using Bili.ViewModels.Interfaces.Search;
 using CommunityToolkit.Mvvm.Input;
+using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 
@@ -33,10 +34,14 @@ namespace Bili.ViewModels.Uwp.Search
 
             HotSearchCollection = new ObservableCollection<SearchSuggest>();
             SearchSuggestion = new ObservableCollection<SearchSuggest>();
+            HistoryCollection = new ObservableCollection<string>();
 
             SearchCommand = new AsyncRelayCommand<string>(Search);
             SelectSuggestCommand = new AsyncRelayCommand<SearchSuggest>(Search);
             InitializeCommand = new AsyncRelayCommand(LoadHotSearchAsync);
+            ClearHistoryCommand = new RelayCommand(ClearHistory);
+            RemoveHistoryCommand = new RelayCommand<string>(RemoveHistory);
+            LoadHistory();
 
             _suggestionTimer = new DispatcherTimer
             {
@@ -55,10 +60,72 @@ namespace Bili.ViewModels.Uwp.Search
             Keyword = string.Empty;
             if (!string.IsNullOrEmpty(keyword))
             {
+                AddHistory(keyword);
                 _navigationViewModel.NavigateToSecondaryView(Models.Enums.PageIds.Search, keyword);
             }
 
             return Task.CompletedTask;
+        }
+
+        private void AddHistory(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return;
+            }
+
+            var exist = HistoryCollection.FirstOrDefault(p => string.Equals(p, keyword, StringComparison.OrdinalIgnoreCase));
+            if (exist != null)
+            {
+                HistoryCollection.Remove(exist);
+            }
+
+            HistoryCollection.Insert(0, keyword);
+            while (HistoryCollection.Count > 12)
+            {
+                HistoryCollection.RemoveAt(HistoryCollection.Count - 1);
+            }
+
+            SaveHistory();
+        }
+
+        private void RemoveHistory(string keyword)
+        {
+            if (!string.IsNullOrEmpty(keyword) && HistoryCollection.Contains(keyword))
+            {
+                HistoryCollection.Remove(keyword);
+                SaveHistory();
+            }
+        }
+
+        private void ClearHistory()
+        {
+            HistoryCollection.Clear();
+            SaveHistory();
+        }
+
+        private void LoadHistory()
+        {
+            HistoryCollection.Clear();
+            var value = ApplicationData.Current.LocalSettings.Values[SearchHistoryKey] as string;
+            if (!string.IsNullOrEmpty(value))
+            {
+                foreach (var item in value.Split('\n'))
+                {
+                    if (!string.IsNullOrWhiteSpace(item))
+                    {
+                        HistoryCollection.Add(item.Trim());
+                    }
+                }
+            }
+
+            IsShowHistory = HistoryCollection.Count > 0;
+        }
+
+        private void SaveHistory()
+        {
+            ApplicationData.Current.LocalSettings.Values[SearchHistoryKey] = string.Join("\n", HistoryCollection);
+            IsShowHistory = HistoryCollection.Count > 0;
         }
 
         private void InitializeSuggestionCancellationTokenSource()

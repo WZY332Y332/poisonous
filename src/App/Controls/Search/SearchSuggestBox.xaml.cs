@@ -29,6 +29,17 @@ namespace Bili.App.Controls
             HotSearchFlyout.Hide();
         }
 
+        private void OnHistoryItemClick(object sender, ItemClickEventArgs e)
+        {
+            var keyword = e.ClickedItem as string;
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                ViewModel.SearchCommand.Execute(keyword);
+            }
+
+            HotSearchFlyout.Hide();
+        }
+
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
             var width = e.NewSize.Width;
@@ -36,6 +47,7 @@ namespace Bili.App.Controls
             if (width > 16)
             {
                 HotSearchListView.Width = width - 16;
+                HistoryListView.Width = width - 16;
             }
         }
 
@@ -60,7 +72,7 @@ namespace Bili.App.Controls
 
         private void OnHotSearchButtonClick(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.HotSearchCollection.Count > 0)
+            if (ViewModel.HotSearchCollection.Count > 0 || ViewModel.HistoryCollection.Count > 0)
             {
                 HotSearchFlyout.ShowAt(AppSearchBox);
             }

@@ -41,6 +41,7 @@ namespace Bili.ViewModels.Uwp.Core
             Volume = _settingsToolkit.ReadLocalSetting(SettingNames.Volume, 100d);
             _lastReportProgress = TimeSpan.Zero;
             _initializeProgress = TimeSpan.Zero;
+            _isSkipIntroPending = true;
             _originalPlayRate = 0;
             IsInteractionEnd = false;
             IsInteractionVideo = false;
@@ -293,6 +294,17 @@ namespace Bili.ViewModels.Uwp.Core
                 {
                     _player.SeekTo(_initializeProgress);
                     _initializeProgress = TimeSpan.Zero;
+                    _isSkipIntroPending = false;
+                }
+                else if (_isSkipIntroPending)
+                {
+                    _isSkipIntroPending = false;
+                    var skipSeconds = _settingsToolkit.ReadLocalSetting(SettingNames.PlayerSkipIntroSeconds, 0d);
+                    if (skipSeconds > 1 && DurationSeconds > skipSeconds + 5)
+                    {
+                        _player.SeekTo(TimeSpan.FromSeconds(skipSeconds));
+                        ProgressSeconds = skipSeconds;
+                    }
                 }
             }
             else

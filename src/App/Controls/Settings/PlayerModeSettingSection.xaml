@@ -8,6 +8,7 @@
     xmlns:labs="using:CommunityToolkit.Labs.WinUI"
     xmlns:loc="using:Bili.App.Resources.Extension"
     xmlns:local="using:Bili.App.Controls"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:player="using:Bili.Models.Enums.Player"
     xmlns:uwp="using:Richasy.FluentIcon.Uwp"
@@ -80,7 +81,15 @@
                 </labs:SettingsCard.Header>
                 <ToggleSwitch IsOn="{x:Bind ViewModel.IsContinusPlay, Mode=TwoWay}" />
             </labs:SettingsCard>
-            <labs:SettingsCard Description="{loc:Locale Name=DisableP2PCdnDescription}" Header="{loc:Locale Name=DisableP2PCdn}">
+            <labs:SettingsCard Header="跳过片头（秒）" Description="播放开始时自动跳过的秒数，0 表示关闭">
+                <muxc:NumberBox
+                    Width="120"
+                    Maximum="600"
+                    Minimum="0"
+                    SmallChange="15"
+                    SpinButtonPlacementMode="Compact"
+                    Value="{x:Bind ViewModel.SkipIntroSeconds, Mode=TwoWay}" />
+            </labs:SettingsCard>            <labs:SettingsCard Description="{loc:Locale Name=DisableP2PCdnDescription}" Header="{loc:Locale Name=DisableP2PCdn}">
                 <ToggleSwitch IsOn="{x:Bind ViewModel.DisableP2PCdn, Mode=TwoWay}" />
             </labs:SettingsCard>
         </labs:SettingsExpander.Items>

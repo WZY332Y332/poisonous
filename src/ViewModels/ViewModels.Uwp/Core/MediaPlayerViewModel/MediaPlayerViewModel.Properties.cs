@@ -51,6 +51,7 @@ namespace Bili.ViewModels.Uwp.Core
         private SegmentInformation _audio;
         private TimeSpan _lastReportProgress;
         private TimeSpan _initializeProgress;
+        private bool _isSkipIntroPending;
         private Action _playNextAction;
         private SystemMediaTransportControls _systemMediaTransportControls;
         private DisplayRequest _displayRequest;

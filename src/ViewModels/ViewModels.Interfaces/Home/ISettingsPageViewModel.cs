@@ -74,6 +74,11 @@ namespace Bili.ViewModels.Interfaces.Home
         bool IsAutoPlayNextRelatedVideo { get; set; }
 
         /// <summary>
+        /// 跳过片头秒数（0 表示关闭）.
+        /// </summary>
+        double SkipIntroSeconds { get; set; }
+
+        /// <summary>
         /// 默认播放器显示模式.
         /// </summary>
         PlayerDisplayMode DefaultPlayerDisplayMode { get; set; }

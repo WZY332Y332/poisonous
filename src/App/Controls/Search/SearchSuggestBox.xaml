@@ -28,8 +28,45 @@
                     <Setter Property="Padding" Value="8" />
                 </Style>
             </Flyout.FlyoutPresenterStyle>
-            <ListView
-                x:Name="HotSearchListView"
+            <StackPanel>
+                <Grid Margin="8,4,8,2" Visibility="{x:Bind ViewModel.IsShowHistory, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="搜索历史" />
+                    <HyperlinkButton
+                        Padding="6,0"
+                        HorizontalAlignment="Right"
+                        Command="{x:Bind ViewModel.ClearHistoryCommand}"
+                        Content="清空"
+                        FontSize="12" />
+                </Grid>
+                <ListView
+                    x:Name="HistoryListView"
+                    MaxHeight="180"
+                    HorizontalAlignment="Stretch"
+                    IsItemClickEnabled="True"
+                    ItemClick="OnHistoryItemClick"
+                    ItemsSource="{x:Bind ViewModel.HistoryCollection}"
+                    SelectionMode="None"
+                    Visibility="{x:Bind ViewModel.IsShowHistory, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Grid AutomationProperties.Name="{x:Bind}">
+                                <TextBlock
+                                    Style="{StaticResource BodyTextBlockStyle}"
+                                    VerticalAlignment="Center"
+                                    MaxLines="1"
+                                    Text="{x:Bind}"
+                                    TextLineBounds="Tight"
+                                    TextTrimming="CharacterEllipsis" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <ListView
+                    x:Name="HotSearchListView"
                 Width="{Binding ElementName=AppSearchBox, Path=ActualWidth}"
                 HorizontalAlignment="Stretch"
                 IsItemClickEnabled="True"
@@ -69,7 +106,8 @@
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
+                </ListView>
+            </StackPanel>
         </Flyout>
     </UserControl.Resources>
 

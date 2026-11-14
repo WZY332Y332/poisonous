@@ -17,6 +17,8 @@ namespace Bili.ViewModels.Uwp.Search
     /// </summary>
     public sealed partial class SearchBoxViewModel
     {
+        private const string SearchHistoryKey = "SearchHistory";
+
         private readonly ISearchProvider _searchProvider;
         private readonly INavigationViewModel _navigationViewModel;
         private readonly DispatcherTimer _suggestionTimer;
@@ -27,6 +29,9 @@ namespace Bili.ViewModels.Uwp.Search
 
         [ObservableProperty]
         private string _keyword;
+
+        [ObservableProperty]
+        private bool _isShowHistory;
 
         /// <inheritdoc/>
         public ObservableCollection<SearchSuggest> HotSearchCollection { get; }
@@ -42,5 +47,14 @@ namespace Bili.ViewModels.Uwp.Search
 
         /// <inheritdoc/>
         public IAsyncRelayCommand InitializeCommand { get; }
+
+        /// <inheritdoc/>
+        public ObservableCollection<string> HistoryCollection { get; }
+
+        /// <inheritdoc/>
+        public IRelayCommand ClearHistoryCommand { get; }
+
+        /// <inheritdoc/>
+        public IRelayCommand<string> RemoveHistoryCommand { get; }
     }
 }

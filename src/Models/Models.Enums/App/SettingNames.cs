@@ -36,6 +36,7 @@ namespace Bili.Models.Enums
         IsShowDanmakuBar,
         CanShowSubtitle,
         PlaybackRate,
+        PlayerSkipIntroSeconds,
         DanmakuArea,
         DanmakuSpeed,
         DisableP2PCdn,

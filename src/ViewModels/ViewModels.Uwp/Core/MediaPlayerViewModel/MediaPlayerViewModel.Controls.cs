@@ -124,6 +124,7 @@ namespace Bili.ViewModels.Uwp.Core
                 if (PlaybackRate != rate)
                 {
                     PlaybackRate = rate;
+                    _settingsToolkit.WriteLocalSetting(SettingNames.PlaybackRate, rate);
                 }
 
                 _player.SetPlayRate(rate);
