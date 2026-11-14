@@ -257,6 +257,13 @@ namespace Bili.SignIn.Uwp
 
             if (string.IsNullOrEmpty(token))
             {
+                // 仅 Cookie 登录没有 access_token，只要对话框期间已登录成功就算成功，
+                // 否则会出现「Cookie 登录成功 -> 立刻被登出」。
+                if (_cookieOnlyMode && State == AuthorizeState.SignedIn)
+                {
+                    return true;
+                }
+
                 await SignOutAsync();
                 return false;
             }
@@ -272,7 +279,9 @@ namespace Bili.SignIn.Uwp
             _settingsToolkit.DeleteLocalSetting(SettingNames.BiliUserId);
             _settingsToolkit.DeleteLocalSetting(SettingNames.AuthorizeResult);
             Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove(CookieOnlyMidKey);
+            Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove(CookieStringKey);
             _cookieOnlyMode = false;
+            _cookieString = null;
 
             if (_tokenInfo != null)
             {
@@ -291,7 +300,9 @@ namespace Bili.SignIn.Uwp
             // 仅 Cookie 模式没有 token 概念，只要处于登录态即视为有效
             if (_cookieOnlyMode)
             {
-                return State == AuthorizeState.SignedIn;
+                // 只要缓存里还有 Cookie 就认为有效，不要求 State 必须是 SignedIn，
+                // 否则登录流程中途（State=Loading）重入校验会误判为失效并触发登出。
+                return !string.IsNullOrEmpty(_cookieString);
             }
 
             var isLocalValid = _tokenInfo != null &&
