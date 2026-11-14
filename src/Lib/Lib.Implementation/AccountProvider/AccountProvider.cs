@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Richasy. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -54,11 +55,51 @@ namespace Bili.Lib
         /// <inheritdoc/>
         public async Task<AccountInformation> GetMyInformationAsync()
         {
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.MyInfo, type: Models.Enums.RequestClientType.IOS, needToken: true);
+            try
+            {
+                var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Account.MyInfo, type: Models.Enums.RequestClientType.IOS, needToken: true);
+                var response = await _httpProvider.SendAsync(request);
+                var result = await _httpProvider.ParseAsync<ServerResponse<MyInfo>>(response);
+                UserId = result.Data.Mid;
+                return _userAdapter.ConvertToAccountInformation(result.Data, Models.Enums.App.AvatarSize.Size48);
+            }
+            catch (Exception ex)
+            {
+                // 仅 Cookie 登录没有 access_token，App 端接口必然失败，
+                // 回退到 Web 的 nav 接口，至少把头像、昵称、等级取回来。
+                Bili.Models.App.Other.AppLogger.Warn("Account", "获取个人信息失败，尝试 Web 回退: " + ex.Message);
+                return await GetMyInformationFromWebAsync();
+            }
+        }
+
+        private async Task<AccountInformation> GetMyInformationFromWebAsync()
+        {
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, "https://api.bilibili.com/x/web-interface/nav", null, needCookie: true);
             var response = await _httpProvider.SendAsync(request);
-            var result = await _httpProvider.ParseAsync<ServerResponse<MyInfo>>(response);
-            UserId = result.Data.Mid;
-            return _userAdapter.ConvertToAccountInformation(result.Data, Models.Enums.App.AvatarSize.Size48);
+            var text = await response.Content.ReadAsStringAsync();
+            var root = Newtonsoft.Json.Linq.JObject.Parse(text);
+            var data = root["data"];
+            if (data == null || !(bool)data["isLogin"])
+            {
+                throw new InvalidOperationException("Cookie 登录态已失效");
+            }
+
+            var mid = (long)data["mid"];
+            var uname = (string)data["uname"];
+            var face = (string)data["face"];
+            var level = data["level_info"] == null ? 0 : (int)data["level_info"]["current_level"];
+            var vip = data["vipStatus"] != null && (int)data["vipStatus"] == 1;
+            var coins = data["money"] == null ? 0d : (double)data["money"];
+
+            UserId = mid;
+            var profile = new Bili.Models.Data.User.UserProfile(mid.ToString(), uname, new Bili.Models.Data.Appearance.Image(face));
+            var info = new AccountInformation(profile)
+            {
+                Level = level,
+                IsVip = vip,
+            };
+            Bili.Models.App.Other.AppLogger.Info("Account", $"Web 回退成功: {uname} (Lv{level}, 硬币 {coins})");
+            return info;
         }
 
         /// <inheritdoc/>
