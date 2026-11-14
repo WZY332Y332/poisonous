@@ -91,9 +91,9 @@ namespace Bili.ViewModels.Uwp.Download
     /// </summary>
     public sealed partial class DownloadPageViewModel : ViewModelBase, IDownloadPageViewModel
     {
-        private static Windows.UI.Core.CoreDispatcher _uiDispatcher;
-
         private static readonly HttpClient HttpClientInstance = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+
+        private static Windows.UI.Core.CoreDispatcher _uiDispatcher;
 
         private readonly IPlayerProvider _playerProvider;
 
