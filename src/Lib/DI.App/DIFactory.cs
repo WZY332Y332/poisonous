@@ -162,7 +162,7 @@ namespace Bili.DI.App
                 .RegisterSingleton<IFollowsPageViewModel, FollowsPageViewModel>()
                 .RegisterSingleton<IFansPageViewModel, FansPageViewModel>()
                 .RegisterSingleton<IMessagePageViewModel, MessagePageViewModel>()
-                .RegisterSingleton<Bili.ViewModels.Uwp.Download.DownloadPageViewModel, Bili.ViewModels.Uwp.Download.DownloadPageViewModel>()
+                .RegisterSingleton<Bili.ViewModels.Interfaces.Download.IDownloadPageViewModel, Bili.ViewModels.Uwp.Download.DownloadPageViewModel>()
                 .RegisterSingleton<IDynamicPageViewModel, DynamicPageViewModel>()
                 .RegisterSingleton<ICommentMainModuleViewModel, CommentMainModuleViewModel>()
                 .RegisterSingleton<ICommentDetailModuleViewModel, CommentDetailModuleViewModel>()

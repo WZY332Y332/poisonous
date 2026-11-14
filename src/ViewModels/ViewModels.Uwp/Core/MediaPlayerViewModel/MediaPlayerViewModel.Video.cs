@@ -237,7 +237,7 @@ namespace Bili.ViewModels.Uwp.Core
                 return;
             }
 
-            var downloader = Bili.DI.Container.Locator.Instance.GetService<Bili.ViewModels.Uwp.Download.DownloadPageViewModel>();
+            var downloader = Bili.DI.Container.Locator.Instance.GetService<Bili.ViewModels.Interfaces.Download.IDownloadPageViewModel>();
             await downloader.EnqueueAsync(view.Information.Identifier.Id, _currentPart.Id, view.Information.Identifier.Title);
         }
     }

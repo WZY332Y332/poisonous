@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Bili.Lib.Interfaces;
+using Bili.ViewModels.Interfaces.Download;
 using Bili.ViewModels.Uwp.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,7 +19,7 @@ namespace Bili.ViewModels.Uwp.Download
     /// <summary>
     /// 下载任务视图模型.
     /// </summary>
-    public sealed partial class DownloadTaskViewModel : ObservableObject
+    public sealed partial class DownloadTaskViewModel : ObservableObject, IDownloadTaskViewModel
     {
         /// <summary>
         /// 进度（0-100）.
@@ -88,7 +89,7 @@ namespace Bili.ViewModels.Uwp.Download
     /// <summary>
     /// 下载管理页面视图模型.
     /// </summary>
-    public sealed partial class DownloadPageViewModel : ViewModelBase
+    public sealed partial class DownloadPageViewModel : ViewModelBase, IDownloadPageViewModel
     {
         private static readonly HttpClient HttpClientInstance = new HttpClient();
 
@@ -107,17 +108,17 @@ namespace Bili.ViewModels.Uwp.Download
         public DownloadPageViewModel(IPlayerProvider playerProvider)
         {
             _playerProvider = playerProvider;
-            Items = new ObservableCollection<DownloadTaskViewModel>();
+            Items = new ObservableCollection<IDownloadTaskViewModel>();
             OpenFolderCommand = new AsyncRelayCommand(OpenFolderAsync);
-            CancelCommand = new RelayCommand<DownloadTaskViewModel>(Cancel);
-            RemoveCommand = new RelayCommand<DownloadTaskViewModel>(Remove);
+            CancelCommand = new RelayCommand<IDownloadTaskViewModel>(Cancel);
+            RemoveCommand = new RelayCommand<IDownloadTaskViewModel>(Remove);
             AddCommand = new AsyncRelayCommand(AddAsync);
         }
 
         /// <summary>
         /// 下载任务集合.
         /// </summary>
-        public ObservableCollection<DownloadTaskViewModel> Items { get; }
+        public ObservableCollection<IDownloadTaskViewModel> Items { get; }
 
         /// <summary>
         /// 打开下载文件夹的命令.
@@ -127,12 +128,12 @@ namespace Bili.ViewModels.Uwp.Download
         /// <summary>
         /// 取消下载的命令.
         /// </summary>
-        public IRelayCommand<DownloadTaskViewModel> CancelCommand { get; }
+        public IRelayCommand<IDownloadTaskViewModel> CancelCommand { get; }
 
         /// <summary>
         /// 移除任务的命令.
         /// </summary>
-        public IRelayCommand<DownloadTaskViewModel> RemoveCommand { get; }
+        public IRelayCommand<IDownloadTaskViewModel> RemoveCommand { get; }
 
         /// <summary>
         /// 按输入的视频 ID 添加下载任务的命令.
@@ -200,7 +201,7 @@ namespace Bili.ViewModels.Uwp.Download
             await EnqueueAsync(view.Information.Identifier.Id, part?.Id, view.Information.Identifier.Title);
         }
 
-        private async Task DownloadAsync(DownloadTaskViewModel item)
+        private async Task DownloadAsync(IDownloadTaskViewModel item)
         {
             item.IsDownloading = true;
             item.Progress = 0;
@@ -271,7 +272,7 @@ namespace Bili.ViewModels.Uwp.Download
             }
         }
 
-        private void Cancel(DownloadTaskViewModel item)
+        private void Cancel(IDownloadTaskViewModel item)
         {
             if (item == null)
             {
@@ -290,7 +291,7 @@ namespace Bili.ViewModels.Uwp.Download
             item.IsDownloading = false;
         }
 
-        private void Remove(DownloadTaskViewModel item)
+        private void Remove(IDownloadTaskViewModel item)
         {
             if (item != null && Items.Contains(item))
             {
