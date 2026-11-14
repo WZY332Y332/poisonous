@@ -157,8 +157,34 @@ namespace Bili.ViewModels.Uwp.Download
 
             var item = new DownloadTaskViewModel(title, videoId, partId, quality);
             Items.Insert(0, item);
-            IsEmpty = false;
+            UpdateUi(() => IsEmpty = false);
             await DownloadAsync(item);
+        }
+
+        private static void UpdateUi(Action action)
+        {
+            var dispatcher = Windows.ApplicationModel.Core.CoreApplication.MainView?.CoreWindow?.Dispatcher;
+            if (dispatcher == null || dispatcher.HasThreadAccess)
+            {
+                action();
+            }
+            else
+            {
+                _ = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => action());
+            }
+        }
+
+        private static void UpdateItem(IDownloadTaskViewModel item, double progress, string status, bool? isDownloading = null)
+        {
+            UpdateUi(() =>
+            {
+                item.Progress = progress;
+                item.StatusText = status;
+                if (isDownloading.HasValue)
+                {
+                    item.IsDownloading = isDownloading.Value;
+                }
+            });
         }
 
         private string SanitizeFileName(string name)
@@ -203,17 +229,14 @@ namespace Bili.ViewModels.Uwp.Download
 
         private async Task DownloadAsync(IDownloadTaskViewModel item)
         {
-            item.IsDownloading = true;
-            item.Progress = 0;
-            item.StatusText = "获取下载地址…";
+            UpdateItem(item, 0, "获取下载地址…", true);
 
             try
             {
                 var urls = await _playerProvider.GetVideoDownloadUrlsAsync(item.VideoId, item.PartId, item.Quality);
                 if (urls == null || urls.Count == 0)
                 {
-                    item.StatusText = "没有可用的下载地址（可能需要登录或该视频不支持）";
-                    item.IsDownloading = false;
+                    UpdateItem(item, 0, "没有可用的下载地址（可能需要登录或该视频不支持）", false);
                     return;
                 }
 
@@ -227,7 +250,7 @@ namespace Bili.ViewModels.Uwp.Download
 
                 foreach (var url in urls)
                 {
-                    item.StatusText = "连接中…";
+                    UpdateUi(() => item.StatusText = "连接中…");
                     try
                     {
                         using (var request = new HttpRequestMessage(HttpMethod.Get, url))
@@ -251,7 +274,7 @@ namespace Bili.ViewModels.Uwp.Download
                                     {
                                         await fileStream.WriteAsync(buffer, 0, read, item.Cancellation.Token);
                                         totalRead += read;
-                                        item.StatusText = string.Format("下载中 {0:0.0} MB", totalRead / 1024d / 1024d);
+                                        var statusText = string.Format("下载中 {0:0.0} MB", totalRead / 1024d / 1024d);
                                         if (totalLength > 0)
                                         {
                                             item.Progress = Math.Min(99, totalRead * 100d / totalLength);
@@ -280,21 +303,20 @@ namespace Bili.ViewModels.Uwp.Download
                     throw lastError ?? new InvalidOperationException("所有下载地址均不可用");
                 }
 
-                item.Progress = 100;
-                item.StatusText = "已完成";
+                UpdateItem(item, 100, "已完成", false);
             }
             catch (OperationCanceledException)
             {
-                item.StatusText = "已取消";
+                UpdateItem(item, item.Progress, "已取消", false);
             }
             catch (Exception ex)
             {
-                item.StatusText = "失败：" + ex.Message;
+                UpdateItem(item, item.Progress, "失败：" + ex.Message, false);
                 LogException(ex);
             }
             finally
             {
-                item.IsDownloading = false;
+                UpdateUi(() => item.IsDownloading = false);
             }
         }
 
@@ -313,8 +335,7 @@ namespace Bili.ViewModels.Uwp.Download
             {
             }
 
-            item.StatusText = "已取消";
-            item.IsDownloading = false;
+            UpdateItem(item, item.Progress, "已取消", false);
         }
 
         private void Remove(IDownloadTaskViewModel item)
@@ -322,7 +343,7 @@ namespace Bili.ViewModels.Uwp.Download
             if (item != null && Items.Contains(item))
             {
                 Items.Remove(item);
-                IsEmpty = Items.Count == 0;
+                UpdateUi(() => IsEmpty = Items.Count == 0);
             }
         }
 
