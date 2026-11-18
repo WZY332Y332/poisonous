@@ -79,12 +79,13 @@
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <Grid
                             x:Name="RootGrid"
                             Padding="36,24,24,24"
                             RowSpacing="24">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <ContentPresenter
@@ -134,6 +135,7 @@
                                 </Button>
                             </Grid>
                         </Grid>
+                        </ScrollViewer>
                     </SplitView>
                 </ControlTemplate>
             </Setter.Value>

@@ -60,6 +60,8 @@ namespace Bili.App.Controls.Player
 
         private readonly double _mediumWindowWidth;
         private SplitView _splitView;
+        private FrameworkElement _playerComponent;
+        private FrameworkElement _rootGrid;
         private ButtonBase _expandButton;
 
         /// <summary>
@@ -153,6 +155,8 @@ namespace Bili.App.Controls.Player
         protected override void OnApplyTemplate()
         {
             _splitView = GetTemplateChild("RootView") as SplitView;
+            _playerComponent = GetTemplateChild("PlayerComponent") as FrameworkElement;
+            _rootGrid = GetTemplateChild("RootGrid") as FrameworkElement;
             _expandButton = GetTemplateChild("ExpandButton") as ButtonBase;
             var sectionView = GetTemplateChild("SectionNavigationView") as Microsoft.UI.Xaml.Controls.NavigationView;
 
@@ -186,6 +190,30 @@ namespace Bili.App.Controls.Player
             }
         }
 
+        private void UpdatePlayerSize()
+        {
+            if (_playerComponent == null)
+            {
+                return;
+            }
+
+            var displayMode = ViewModel?.MediaPlayerViewModel?.DisplayMode ?? Models.Enums.PlayerDisplayMode.Default;
+            if (displayMode != Models.Enums.PlayerDisplayMode.Default)
+            {
+                // 全屏/全窗口模式下直接铺满
+                _playerComponent.Height = Window.Current.Bounds.Height;
+                return;
+            }
+
+            // 常规模式：按 16:9 计算播放区高度，页面内容超出时可滚动
+            var width = _rootGrid?.ActualWidth ?? ActualWidth;
+            if (width <= 0)
+            {
+                return;
+            }
+
+            _playerComponent.Height = Math.Max(240d, width * 9d / 16d);
+        }
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
             if (ViewModel?.MediaPlayerViewModel != null)
@@ -196,7 +224,10 @@ namespace Bili.App.Controls.Player
         }
 
         private async void OnLoadedAsync(object sender, RoutedEventArgs e)
-            => await ChangeVisualStateFromDisplayModeAsync();
+        {
+            await ChangeVisualStateFromDisplayModeAsync();
+            UpdatePlayerSize();
+        }
 
         private async void OnMediaPlayerChangedAsync(object sender, object e)
             => await ChangeVisualStateFromDisplayModeAsync();
@@ -262,6 +293,8 @@ namespace Bili.App.Controls.Player
             {
                 VisualStateManager.GoToState(this, "StandardState", false);
             }
+
+            UpdatePlayerSize();
         }
 
         private void OnExpandButtonClick(object sender, RoutedEventArgs e)

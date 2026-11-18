@@ -64,7 +64,7 @@ namespace Bili.ViewModels.Uwp.Home
             IsAutoPlayWhenLoaded = ReadSetting(SettingNames.IsAutoPlayWhenLoaded, true);
             IsAutoPlayNextRelatedVideo = ReadSetting(SettingNames.IsAutoPlayNextRelatedVideo, false);
             SkipIntroSeconds = ReadSetting(SettingNames.PlayerSkipIntroSeconds, 0d);
-            DisableP2PCdn = ReadSetting(SettingNames.DisableP2PCdn, false);
+            DisableP2PCdn = ReadSetting(SettingNames.DisableP2PCdn, true);
             IsContinusPlay = ReadSetting(SettingNames.IsContinusPlay, true);
             SingleFastForwardAndRewindSpan = ReadSetting(SettingNames.SingleFastForwardAndRewindSpan, 30d);
             IsSupportContinuePlay = ReadSetting(SettingNames.SupportContinuePlay, true);
