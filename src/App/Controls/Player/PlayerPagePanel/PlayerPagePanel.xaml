@@ -87,15 +87,12 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <ContentPresenter x:Name="HeaderHost" Grid.Row="0" Margin="0,0,0,4" />
                             <ContentPresenter
                                 x:Name="PlayerComponent"
-                                Grid.Row="1"
                                 Content="{TemplateBinding Player}"
                                 CornerRadius="{StaticResource OverlayCornerRadius}" />
-                            <Grid x:Name="DetailContainer" Grid.Row="2">
+                            <Grid x:Name="DetailContainer" Grid.Row="1">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
@@ -105,9 +102,9 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <ContentPresenter
-                                    x:Name="FooterHost"
+                                    x:Name="DescriptorComponent"
                                     VerticalAlignment="Top"
-                                    Visibility="Collapsed" />
+                                    Content="{TemplateBinding Descriptor}" />
                                 <ContentPresenter
                                     x:Name="DashboardComponent"
                                     Grid.Column="1"
@@ -118,7 +115,7 @@
 
                             <Grid
                                 x:Name="ExpandButtonContainer"
-                                Grid.RowSpan="3"
+                                Grid.RowSpan="2"
                                 Margin="24"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom">

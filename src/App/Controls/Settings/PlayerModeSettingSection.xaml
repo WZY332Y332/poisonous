@@ -81,9 +81,7 @@
                 </labs:SettingsCard.Header>
                 <ToggleSwitch IsOn="{x:Bind ViewModel.IsContinusPlay, Mode=TwoWay}" />
             </labs:SettingsCard>
-            <labs:SettingsCard Header="播放页使用官方布局" Description="标题与播放数据在视频上方，操作栏在下方（关闭则恢复标题在下方）">
-                <ToggleSwitch IsOn="{x:Bind ViewModel.IsOfficialPlayerLayout, Mode=TwoWay}" />
-            </labs:SettingsCard>            <labs:SettingsCard Header="跳过片头（秒）" Description="播放开始时自动跳过的秒数，0 表示关闭">
+            <labs:SettingsCard Header="跳过片头（秒）" Description="播放开始时自动跳过的秒数，0 表示关闭">
                 <muxc:NumberBox
                     Width="120"
                     Maximum="600"

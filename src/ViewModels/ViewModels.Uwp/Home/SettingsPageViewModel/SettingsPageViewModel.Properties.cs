@@ -47,9 +47,6 @@ namespace Bili.ViewModels.Uwp.Home
         private double _skipIntroSeconds;
 
         [ObservableProperty]
-        private bool _isOfficialPlayerLayout;
-
-        [ObservableProperty]
         private PlayerDisplayMode _defaultPlayerDisplayMode;
 
         [ObservableProperty]

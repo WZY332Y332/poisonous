@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Bili.DI.Container;
 using Bili.Models.App.Constants;
 using Bili.Models.App.Other;
-using Bili.Models.Enums;
 using Bili.Toolkit.Interfaces;
 using Bili.ViewModels.Interfaces;
 using Windows.UI.ViewManagement;
@@ -63,9 +62,6 @@ namespace Bili.App.Controls.Player
         private SplitView _splitView;
         private FrameworkElement _playerComponent;
         private FrameworkElement _rootGrid;
-        private ContentPresenter _headerHost;
-        private ContentPresenter _footerHost;
-        private ISettingsToolkit _settingsToolkit;
         private ButtonBase _expandButton;
 
         /// <summary>
@@ -75,7 +71,6 @@ namespace Bili.App.Controls.Player
         {
             DefaultStyleKey = typeof(PlayerPagePanel);
             _mediumWindowWidth = Locator.Instance.GetService<IResourceToolkit>().GetResource<double>(AppConstants.MediumWindowThresholdWidthKey);
-            _settingsToolkit = Locator.Instance.GetService<ISettingsToolkit>();
             SizeChanged += OnSizeChanged;
             Loaded += OnLoadedAsync;
             Unloaded += OnUnloaded;
@@ -162,8 +157,6 @@ namespace Bili.App.Controls.Player
             _splitView = GetTemplateChild("RootView") as SplitView;
             _playerComponent = GetTemplateChild("PlayerComponent") as FrameworkElement;
             _rootGrid = GetTemplateChild("RootGrid") as FrameworkElement;
-            _headerHost = GetTemplateChild("HeaderHost") as ContentPresenter;
-            _footerHost = GetTemplateChild("FooterHost") as ContentPresenter;
             _expandButton = GetTemplateChild("ExpandButton") as ButtonBase;
             var sectionView = GetTemplateChild("SectionNavigationView") as Microsoft.UI.Xaml.Controls.NavigationView;
 
@@ -197,35 +190,6 @@ namespace Bili.App.Controls.Player
             }
         }
 
-        private void ApplyLayoutStyle()
-        {
-            if (_headerHost == null || _footerHost == null)
-            {
-                return;
-            }
-
-            var isOfficial = _settingsToolkit == null
-                || _settingsToolkit.ReadLocalSetting(SettingNames.PlayerPageOfficialLayout, true);
-
-            // Descriptor 只能挂在一个宿主上，先清空再赋值
-            _headerHost.Content = null;
-            _footerHost.Content = null;
-
-            if (isOfficial)
-            {
-                // 官方风格：标题、作者、播放数据在视频上方
-                _headerHost.Content = Descriptor;
-                _headerHost.Visibility = Visibility.Visible;
-                _footerHost.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                // 经典风格：信息放在视频下方
-                _footerHost.Content = Descriptor;
-                _footerHost.Visibility = Visibility.Visible;
-                _headerHost.Visibility = Visibility.Collapsed;
-            }
-        }
         private void UpdatePlayerSize()
         {
             if (_playerComponent == null)
@@ -263,7 +227,6 @@ namespace Bili.App.Controls.Player
         {
             await ChangeVisualStateFromDisplayModeAsync();
             UpdatePlayerSize();
-            ApplyLayoutStyle();
         }
 
         private async void OnMediaPlayerChangedAsync(object sender, object e)
