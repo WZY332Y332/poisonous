@@ -64,6 +64,7 @@ namespace Bili.ViewModels.Uwp.Home
             IsAutoPlayWhenLoaded = ReadSetting(SettingNames.IsAutoPlayWhenLoaded, true);
             IsAutoPlayNextRelatedVideo = ReadSetting(SettingNames.IsAutoPlayNextRelatedVideo, false);
             SkipIntroSeconds = ReadSetting(SettingNames.PlayerSkipIntroSeconds, 0d);
+            IsOfficialPlayerLayout = ReadSetting(SettingNames.PlayerPageOfficialLayout, true);
             DisableP2PCdn = ReadSetting(SettingNames.DisableP2PCdn, true);
             IsContinusPlay = ReadSetting(SettingNames.IsContinusPlay, true);
             SingleFastForwardAndRewindSpan = ReadSetting(SettingNames.SingleFastForwardAndRewindSpan, 30d);
@@ -136,6 +137,9 @@ namespace Bili.ViewModels.Uwp.Home
                     break;
                 case nameof(IsAutoPlayNextRelatedVideo):
                     WriteSetting(SettingNames.IsAutoPlayNextRelatedVideo, IsAutoPlayNextRelatedVideo);
+                    break;
+                case nameof(IsOfficialPlayerLayout):
+                    WriteSetting(SettingNames.PlayerPageOfficialLayout, IsOfficialPlayerLayout);
                     break;
                 case nameof(SkipIntroSeconds):
                     WriteSetting(SettingNames.PlayerSkipIntroSeconds, SkipIntroSeconds);
