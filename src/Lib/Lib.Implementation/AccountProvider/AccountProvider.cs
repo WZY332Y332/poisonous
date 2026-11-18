@@ -72,36 +72,6 @@ namespace Bili.Lib
             }
         }
 
-        private async Task<AccountInformation> GetMyInformationFromWebAsync()
-        {
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, "https://api.bilibili.com/x/web-interface/nav", null, needCookie: true);
-            var response = await _httpProvider.SendAsync(request);
-            var text = await response.Content.ReadAsStringAsync();
-            var root = Newtonsoft.Json.Linq.JObject.Parse(text);
-            var data = root["data"];
-            if (data == null || !(bool)data["isLogin"])
-            {
-                throw new InvalidOperationException("Cookie 登录态已失效");
-            }
-
-            var mid = (long)data["mid"];
-            var uname = (string)data["uname"];
-            var face = (string)data["face"];
-            var level = data["level_info"] == null ? 0 : (int)data["level_info"]["current_level"];
-            var vip = data["vipStatus"] != null && (int)data["vipStatus"] == 1;
-            var coins = data["money"] == null ? 0d : (double)data["money"];
-
-            UserId = mid;
-            var profile = new Bili.Models.Data.User.UserProfile(mid.ToString(), uname, new Bili.Models.Data.Appearance.Image(face));
-            var info = new AccountInformation(profile)
-            {
-                Level = level,
-                IsVip = vip,
-            };
-            Bili.Models.App.Other.AppLogger.Info("Account", $"Web 回退成功: {uname} (Lv{level}, 硬币 {coins})");
-            return info;
-        }
-
         /// <inheritdoc/>
         public async Task<UserCommunityInformation> GetMyCommunityInformationAsync()
         {
@@ -430,5 +400,35 @@ namespace Bili.Lib
         /// <inheritdoc/>
         public void ClearMyFollowStatus()
             => _myFollowOffsetCache.Clear();
+
+        private async Task<AccountInformation> GetMyInformationFromWebAsync()
+        {
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, "https://api.bilibili.com/x/web-interface/nav", null, needCookie: true);
+            var response = await _httpProvider.SendAsync(request);
+            var text = await response.Content.ReadAsStringAsync();
+            var root = Newtonsoft.Json.Linq.JObject.Parse(text);
+            var data = root["data"];
+            if (data == null || !(bool)data["isLogin"])
+            {
+                throw new InvalidOperationException("Cookie 登录态已失效");
+            }
+
+            var mid = (long)data["mid"];
+            var uname = (string)data["uname"];
+            var face = (string)data["face"];
+            var level = data["level_info"] == null ? 0 : (int)data["level_info"]["current_level"];
+            var vip = data["vipStatus"] != null && (int)data["vipStatus"] == 1;
+            var coins = data["money"] == null ? 0d : (double)data["money"];
+
+            UserId = mid;
+            var profile = new Bili.Models.Data.User.UserProfile(mid.ToString(), uname, new Bili.Models.Data.Appearance.Image(face));
+            var info = new AccountInformation(profile)
+            {
+                Level = level,
+                IsVip = vip,
+            };
+            Bili.Models.App.Other.AppLogger.Info("Account", $"Web 回退成功: {uname} (Lv{level}, 硬币 {coins})");
+            return info;
+        }
     }
 }
