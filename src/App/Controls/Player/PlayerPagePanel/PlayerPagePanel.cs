@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Bili.DI.Container;
 using Bili.Models.App.Constants;
 using Bili.Models.App.Other;
+using Bili.Models.Enums;
 using Bili.Toolkit.Interfaces;
 using Bili.ViewModels.Interfaces;
 using Windows.UI.ViewManagement;

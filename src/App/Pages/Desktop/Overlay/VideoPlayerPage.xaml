@@ -395,16 +395,12 @@
                             x:Name="CreateDownloadCommandButton"
                             MinWidth="120"
                             Margin="0,0,0,8"
-                            HorizontalAlignment="Stretch">
+                            HorizontalAlignment="Stretch"
+                            Command="{x:Bind ViewModel.MediaPlayerViewModel.DownloadCommand, Mode=OneWay}">
                             <controls:IconTextBlock
                                 Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                 Symbol="ArrowDownload16"
                                 Text="{loc:Locale Name=Download}" />
-                            <Button.Flyout>
-                                <Flyout>
-                                    <player:DownloadOptionsPanel ViewModel="{x:Bind ViewModel.DownloadViewModel}" />
-                                </Flyout>
-                            </Button.Flyout>
                         </Button>
 
                         <StackPanel Orientation="Horizontal" Spacing="8">

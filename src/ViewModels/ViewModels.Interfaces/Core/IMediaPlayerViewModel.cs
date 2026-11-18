@@ -44,6 +44,11 @@ namespace Bili.ViewModels.Interfaces.Core
         IAsyncRelayCommand<VideoIdentifier> ChangePartCommand { get; }
 
         /// <summary>
+        /// 下载当前视频的命令.
+        /// </summary>
+        IAsyncRelayCommand DownloadCommand { get; }
+
+        /// <summary>
         /// 重置播放历史的命令.
         /// </summary>
         IRelayCommand ResetProgressHistoryCommand { get; }

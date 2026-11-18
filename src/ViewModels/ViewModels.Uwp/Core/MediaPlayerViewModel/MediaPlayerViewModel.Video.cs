@@ -239,6 +239,7 @@ namespace Bili.ViewModels.Uwp.Core
 
             var downloader = Bili.DI.Container.Locator.Instance.GetService<Bili.ViewModels.Interfaces.Download.IDownloadPageViewModel>();
             await downloader.EnqueueAsync(view.Information.Identifier.Id, _currentPart.Id, view.Information.Identifier.Title);
+            RequestShowTempMessage?.Invoke(this, "已加入下载列表");
         }
     }
 }

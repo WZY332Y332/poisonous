@@ -135,7 +135,7 @@ namespace Bili.Lib
                 { Query.OType, "json" },
             };
 
-            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Video.PlayInformation, queryParameters, RequestClientType.IOS, needToken: true);
+            var request = await _httpProvider.GetRequestMessageAsync(HttpMethod.Get, Video.PlayInformation, queryParameters, needToken: false, needCookie: true);
             var response = await _httpProvider.SendAsync(request);
             var result = await _httpProvider.ParseAsync<ServerResponse<PlayerInformation>>(response);
             var urls = new List<string>();
