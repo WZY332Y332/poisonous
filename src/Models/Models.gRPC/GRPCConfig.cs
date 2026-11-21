@@ -40,7 +40,7 @@ namespace Bili.Models.gRPC
         /// <summary>
         /// 构建标识.
         /// </summary>
-        public const int Build = 6070600;
+        public const int Build = 8000000;
 
         /// <summary>
         /// 频道.

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Richasy. All rights reserved.
 
 using System;
+using System.Collections.Generic;
 using Bili.Models.Data.Appearance;
 using Bili.Models.Data.User;
 using Bili.Models.Enums.Bili;
@@ -29,7 +30,8 @@ namespace Bili.Models.Data.Community
             bool isTop,
             AccountInformation publisher,
             DateTime publishTime,
-            CommentCommunityInformation communityInformation)
+            CommentCommunityInformation communityInformation,
+            IReadOnlyList<string> images = null)
         {
             Id = id;
             Content = content;
@@ -38,6 +40,7 @@ namespace Bili.Models.Data.Community
             Publisher = publisher;
             PublishTime = publishTime;
             CommunityInformation = communityInformation;
+            Images = images ?? Array.Empty<string>();
         }
 
         /// <summary>
@@ -49,6 +52,11 @@ namespace Bili.Models.Data.Community
         /// 评论内容.
         /// </summary>
         public EmoteText Content { get; }
+
+        /// <summary>
+        /// 评论附带的图片（图文评论）.
+        /// </summary>
+        public IReadOnlyList<string> Images { get; }
 
         /// <summary>
         /// 根评论 Id.

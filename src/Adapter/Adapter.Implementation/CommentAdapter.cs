@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Richasy. All rights reserved.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Bili.Adapter.Interfaces;
 using Bili.Models.Data.Community;
@@ -39,7 +40,19 @@ namespace Bili.Adapter
             var user = _userAdapter.ConvertToAccountInformation(info.Member);
             var communityInfo = new CommentCommunityInformation(id, info.Like, Convert.ToInt32(info.Count), info.ReplyControl.Action == 1);
             var content = _imageAdapter.ConvertToEmoteText(info.Content);
-            return new CommentInformation(id, content, rootId, isTop, user, publishTime, communityInfo);
+            var images = info.Content?.Pictures?
+                .Select(p => p.ImgSrc)
+                .Where(p => !string.IsNullOrEmpty(p))
+                .ToList() ?? new List<string>();
+
+            // 版本过低时服务端会用占位文案替换图文评论，这里把它清掉
+            if (images.Count > 0 && content.Text != null && content.Text.Contains("请升级到App最新版本查看图文评论"))
+            {
+                var cleaned = content.Text.Replace("[请升级到App最新版本查看图文评论]", string.Empty).Trim();
+                content = new Bili.Models.Data.Appearance.EmoteText(cleaned, content.Emotes);
+            }
+
+            return new CommentInformation(id, content, rootId, isTop, user, publishTime, communityInfo, images);
         }
 
         /// <inheritdoc/>

@@ -88,12 +88,30 @@
                                         Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=ViewModel.PublishDateText}"
                                         ToolTipService.ToolTip="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=ViewModel.Data.PublishTime}" />
                                 </Grid>
-                                <Grid Grid.Row="1">
+                                <StackPanel Grid.Row="1" Spacing="6">
                                     <app:EmoteTextBlock
                                         x:Name="ReplyContentBlock"
                                         HorizontalAlignment="Left"
                                         Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=ViewModel.Data.Content}" />
-                                </Grid>
+                                    <ItemsControl ItemsSource="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=ViewModel.Data.Images}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" Spacing="6" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border
+                                                    Width="120"
+                                                    Height="90"
+                                                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                                    CornerRadius="6">
+                                                    <Image Source="{Binding Converter={StaticResource ImageConverter}}" Stretch="UniformToFill" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                                 <Grid Grid.Row="2" ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
