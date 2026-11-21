@@ -79,7 +79,7 @@
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                         <Grid
                             x:Name="RootGrid"
                             Padding="36,24,24,24"
@@ -87,12 +87,15 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
+                            <ContentPresenter x:Name="HeaderHost" Grid.Row="0" Margin="0,0,0,4" />
                             <ContentPresenter
                                 x:Name="PlayerComponent"
+                                Grid.Row="1"
                                 Content="{TemplateBinding Player}"
                                 CornerRadius="{StaticResource OverlayCornerRadius}" />
-                            <Grid x:Name="DetailContainer" Grid.Row="1">
+                            <Grid x:Name="DetailContainer" Grid.Row="2">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
@@ -102,9 +105,9 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <ContentPresenter
-                                    x:Name="DescriptorComponent"
+                                    x:Name="FooterHost"
                                     VerticalAlignment="Top"
-                                    Content="{TemplateBinding Descriptor}" />
+                                    Visibility="Collapsed" />
                                 <ContentPresenter
                                     x:Name="DashboardComponent"
                                     Grid.Column="1"
@@ -115,7 +118,7 @@
 
                             <Grid
                                 x:Name="ExpandButtonContainer"
-                                Grid.RowSpan="2"
+                                Grid.RowSpan="3"
                                 Margin="24"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom">

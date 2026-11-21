@@ -79,6 +79,11 @@ namespace Bili.ViewModels.Interfaces.Home
         double SkipIntroSeconds { get; set; }
 
         /// <summary>
+        /// 播放页是否使用官方风格布局（标题在视频上方）.
+        /// </summary>
+        bool IsOfficialPlayerLayout { get; set; }
+
+        /// <summary>
         /// 默认播放器显示模式.
         /// </summary>
         PlayerDisplayMode DefaultPlayerDisplayMode { get; set; }

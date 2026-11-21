@@ -121,7 +121,8 @@ namespace Bili.ViewModels.Uwp.Download
             Items = new ObservableCollection<IDownloadTaskViewModel>();
             OpenFolderCommand = new AsyncRelayCommand(OpenFolderAsync);
             CancelCommand = new RelayCommand<IDownloadTaskViewModel>(Cancel);
-            RemoveCommand = new RelayCommand<IDownloadTaskViewModel>(Remove);
+            RemoveCommand = new AsyncRelayCommand<IDownloadTaskViewModel>(RemoveAsync);
+            DeleteCommand = new AsyncRelayCommand<IDownloadTaskViewModel>(DeleteAsync);
             OpenFileCommand = new AsyncRelayCommand<IDownloadTaskViewModel>(OpenFileAsync);
             LoadTasks();
             AddCommand = new AsyncRelayCommand(AddAsync);
@@ -145,7 +146,10 @@ namespace Bili.ViewModels.Uwp.Download
         /// <summary>
         /// 移除任务的命令.
         /// </summary>
-        public IRelayCommand<IDownloadTaskViewModel> RemoveCommand { get; }
+        public IAsyncRelayCommand<IDownloadTaskViewModel> RemoveCommand { get; }
+
+        /// <inheritdoc/>
+        public IAsyncRelayCommand<IDownloadTaskViewModel> DeleteCommand { get; }
 
         /// <inheritdoc/>
         public IAsyncRelayCommand<IDownloadTaskViewModel> OpenFileCommand { get; }
@@ -491,14 +495,93 @@ namespace Bili.ViewModels.Uwp.Download
             UpdateItem(item, item.Progress, "已取消", false);
         }
 
-        private void Remove(IDownloadTaskViewModel item)
+        private async Task RemoveAsync(IDownloadTaskViewModel item)
         {
-            if (item != null && Items.Contains(item))
+            if (item == null)
+            {
+                return;
+            }
+
+            if (item.IsDownloading)
+            {
+                try
+                {
+                    item.Cancellation.Cancel();
+                }
+                catch (Exception)
+                {
+                }
+
+                // 给写入流一点时间释放文件句柄
+                await Task.Delay(600);
+            }
+
+            DeleteFile(item);
+            UpdateUi(() =>
             {
                 Items.Remove(item);
-                UpdateUi(() => IsEmpty = Items.Count == 0);
-                SaveTasks();
+                IsEmpty = Items.Count == 0;
+            });
+            SaveTasks();
+        }
+
+        private async Task DeleteAsync(IDownloadTaskViewModel item)
+        {
+            if (item == null)
+            {
+                return;
             }
+
+            if (item.IsDownloading)
+            {
+                try
+                {
+                    item.Cancellation.Cancel();
+                }
+                catch (Exception)
+                {
+                }
+
+                await Task.Delay(600);
+            }
+
+            var deleted = DeleteFile(item);
+            item.FilePath = string.Empty;
+            UpdateItem(item, item.Progress, deleted ? "文件已删除" : "文件不存在", false, string.Empty);
+            SaveTasks();
+        }
+
+        private bool DeleteFile(IDownloadTaskViewModel item)
+        {
+            if (item == null || string.IsNullOrEmpty(item.FilePath))
+            {
+                return false;
+            }
+
+            for (var i = 0; i < 5; i++)
+            {
+                try
+                {
+                    if (File.Exists(item.FilePath))
+                    {
+                        File.Delete(item.FilePath);
+                    }
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    if (i == 4)
+                    {
+                        LogException(ex);
+                        return false;
+                    }
+
+                    System.Threading.Thread.Sleep(200);
+                }
+            }
+
+            return false;
         }
 
         private async Task OpenFolderAsync()

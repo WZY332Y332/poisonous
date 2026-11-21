@@ -30,7 +30,12 @@ namespace Bili.ViewModels.Interfaces.Download
         /// <summary>
         /// 移除任务的命令.
         /// </summary>
-        IRelayCommand<IDownloadTaskViewModel> RemoveCommand { get; }
+        IAsyncRelayCommand<IDownloadTaskViewModel> RemoveCommand { get; }
+
+        /// <summary>
+        /// 删除已下载文件（保留任务）的命令.
+        /// </summary>
+        IAsyncRelayCommand<IDownloadTaskViewModel> DeleteCommand { get; }
 
         /// <summary>
         /// 输入的视频 ID.

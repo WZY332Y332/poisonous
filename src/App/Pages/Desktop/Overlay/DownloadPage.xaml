@@ -88,6 +88,7 @@
                                 Content="取消"
                                 IsEnabled="{Binding IsDownloading, Mode=OneWay}" />
                             <Button Click="OnOpenClick" Content="打开" />
+                            <Button Click="OnDeleteClick" Content="删除" />
                             <Button Click="OnRemoveClick" Content="移除" />
                         </StackPanel>
                     </Grid>

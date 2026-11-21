@@ -43,6 +43,14 @@ namespace Bili.App.Pages.Desktop.Overlay
             }
         }
 
+        private void OnDeleteClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is IDownloadTaskViewModel task)
+            {
+                ViewModel.DeleteCommand.Execute(task);
+            }
+        }
+
         private void OnRemoveClick(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.DataContext is IDownloadTaskViewModel task)
