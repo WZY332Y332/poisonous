@@ -48,6 +48,11 @@ namespace Bili.ViewModels.Interfaces.Download
         IAsyncRelayCommand AddCommand { get; }
 
         /// <summary>
+        /// 打开已下载文件的命令.
+        /// </summary>
+        IAsyncRelayCommand<IDownloadTaskViewModel> OpenFileCommand { get; }
+
+        /// <summary>
         /// 添加下载任务.
         /// </summary>
         /// <param name="videoId">视频 ID（aid）.</param>
@@ -92,6 +97,16 @@ namespace Bili.ViewModels.Interfaces.Download
         /// 状态文本.
         /// </summary>
         string StatusText { get; set; }
+
+        /// <summary>
+        /// 速度文本.
+        /// </summary>
+        string SpeedText { get; set; }
+
+        /// <summary>
+        /// 大小文本.
+        /// </summary>
+        string SizeText { get; set; }
 
         /// <summary>
         /// 是否正在下载.

@@ -35,6 +35,14 @@ namespace Bili.App.Pages.Desktop.Overlay
             }
         }
 
+        private void OnOpenClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is IDownloadTaskViewModel task)
+            {
+                ViewModel.OpenFileCommand.Execute(task);
+            }
+        }
+
         private void OnRemoveClick(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.DataContext is IDownloadTaskViewModel task)

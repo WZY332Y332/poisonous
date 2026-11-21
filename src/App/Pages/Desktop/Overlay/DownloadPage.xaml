@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="Bili.App.Pages.Desktop.Overlay.DownloadPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -63,10 +63,20 @@
                             <ProgressBar
                                 Maximum="100"
                                 Value="{Binding Progress, Mode=OneWay}" />
-                            <TextBlock
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Style="{StaticResource CaptionTextBlockStyle}"
-                                Text="{Binding StatusText, Mode=OneWay}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{Binding StatusText, Mode=OneWay}" />
+                                <TextBlock
+                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{Binding SizeText, Mode=OneWay}" />
+                                <TextBlock
+                                    Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{Binding SpeedText, Mode=OneWay}" />
+                            </StackPanel>
                         </StackPanel>
                         <StackPanel
                             Grid.Column="1"
@@ -77,6 +87,7 @@
                                 Click="OnCancelClick"
                                 Content="取消"
                                 IsEnabled="{Binding IsDownloading, Mode=OneWay}" />
+                            <Button Click="OnOpenClick" Content="打开" />
                             <Button Click="OnRemoveClick" Content="移除" />
                         </StackPanel>
                     </Grid>
