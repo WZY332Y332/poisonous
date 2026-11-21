@@ -97,11 +97,11 @@ namespace Bili.ViewModels.Uwp.Download
     /// </summary>
     public sealed partial class DownloadPageViewModel : ViewModelBase, IDownloadPageViewModel
     {
+        private const string TasksFileName = "downloads.txt";
+
         private static readonly HttpClient HttpClientInstance = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
 
         private static Windows.UI.Core.CoreDispatcher _uiDispatcher;
-
-        private const string TasksFileName = "downloads.txt";
 
         private readonly IPlayerProvider _playerProvider;
 
@@ -388,7 +388,7 @@ namespace Bili.ViewModels.Uwp.Download
                 var sb = new System.Text.StringBuilder();
                 foreach (var item in Items)
                 {
-                    var line = string.Join("\t", new[]
+                    var fields = new[]
                     {
                         Clean(item.Title),
                         item.VideoId,
@@ -397,7 +397,8 @@ namespace Bili.ViewModels.Uwp.Download
                         item.Progress.ToString("0"),
                         Clean(item.StatusText),
                         Clean(item.FilePath),
-                    });
+                    };
+                    var line = string.Join("\t", fields);
                     sb.AppendLine(line);
                 }
 
@@ -471,6 +472,7 @@ namespace Bili.ViewModels.Uwp.Download
                 LogException(ex);
             }
         }
+
         private void Cancel(IDownloadTaskViewModel item)
         {
             if (item == null)
