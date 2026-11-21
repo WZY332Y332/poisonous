@@ -57,7 +57,7 @@ namespace Bili.App.Controls.Player
         /// <see cref="Descriptor"/> 的依赖属性.
         /// </summary>
         public static readonly DependencyProperty DescriptorProperty =
-            DependencyProperty.Register(nameof(Descriptor), typeof(object), typeof(PlayerPagePanel), new PropertyMetadata(default));
+            DependencyProperty.Register(nameof(Descriptor), typeof(object), typeof(PlayerPagePanel), new PropertyMetadata(default, new PropertyChangedCallback(OnDescriptorChanged)));
 
         private readonly double _mediumWindowWidth;
         private SplitView _splitView;
@@ -80,6 +80,9 @@ namespace Bili.App.Controls.Player
             Loaded += OnLoadedAsync;
             Unloaded += OnUnloaded;
         }
+
+        private static void OnDescriptorChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+            => (sender as PlayerPagePanel)?.ApplyLayoutStyle();
 
         /// <summary>
         /// 区块标头被点击.
@@ -164,6 +167,8 @@ namespace Bili.App.Controls.Player
             _rootGrid = GetTemplateChild("RootGrid") as FrameworkElement;
             _headerHost = GetTemplateChild("HeaderHost") as ContentPresenter;
             _footerHost = GetTemplateChild("FooterHost") as ContentPresenter;
+
+            ApplyLayoutStyle();
             _expandButton = GetTemplateChild("ExpandButton") as ButtonBase;
             var sectionView = GetTemplateChild("SectionNavigationView") as Microsoft.UI.Xaml.Controls.NavigationView;
 
@@ -200,6 +205,11 @@ namespace Bili.App.Controls.Player
         private void ApplyLayoutStyle()
         {
             if (_headerHost == null || _footerHost == null)
+            {
+                return;
+            }
+
+            if (Descriptor == null)
             {
                 return;
             }
